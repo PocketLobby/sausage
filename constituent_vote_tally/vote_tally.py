@@ -150,10 +150,10 @@ class VoteTally():
         # NOTE: this used to produce very nice looking tables. Some ASCII
         # conversion error is being thrown
         return pd.concat([constituent_votes, representative_votes], axis=1). \
-                    dropna() #. \
-                    #style. \
-                    #applymap(color_vote_word).render(). \
-                    #set_properties(**{'text-align' : 'center'})
+                    dropna()#. \
+                    # style. \
+                    # applymap(self._color_vote_word). \
+                    # set_properties(**{'text-align' : 'center'})
 
     def create_html_comparison_table(self, user_token):
         rvst = self.rep_vote_score_table()

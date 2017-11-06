@@ -42,7 +42,7 @@ class TallyMail(GenericMailer):
 
         # sendmail function takes 3 arguments: sender's address, recipient's address
         # and message to send - here it is sent as one string.
-        s.sendmail(self.from_email, self.to, msg.as_string())
+        s.sendmail(self.email_from, self.to, msg.as_string())
         s.quit()
 
     def _compose_message(self):
@@ -52,7 +52,7 @@ class TallyMail(GenericMailer):
         msg['To'] = self.to
 
         part1 = MIMEText(self.msg_text, 'plain')
-        part2 = MIMEText(self._email_html_body(self.msg_html), 'html')
+        part2 = MIMEText(self._email_html_body(), 'html')
 
         msg.attach(part1)
         msg.attach(part2)
