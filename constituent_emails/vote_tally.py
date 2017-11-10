@@ -1,9 +1,9 @@
 import numpy as np
-
 import psycopg2
 import pandas as pd
 import json
-# import constituent_emails.tally as tally_mailer
+
+from .bill_helper import BillHelper#bill_helper as bh
 
 class VoteTally():
     """Compares constituent votes to legislative votes
@@ -99,17 +99,6 @@ class VoteTally():
 
         return pd.read_sql(query, self.conn, params={"bills" : tuple(self.bills)})
 
-    def _color_vote_word(self, val):
-        color_map = {
-                'No Match' : 'red',
-                'No Vote'  : 'grey',
-                'Match'    : 'green',
-                }
-
-        color = 'red' if val == 'No Match' else 'green'
-        color = 'grey' if val == 'No Vote' else color
-        return 'color: %s' % color_map.get(val, 'black')
-
     def _get_unique_user_tokens(self, df):
         return df['user_token'].unique()
 
@@ -131,31 +120,32 @@ class VoteTally():
                     set_index("full_name") .\
                     replace({0  : " - ",
                              1  : "Match",
-                             -1 : "No Match",
-                             -2 : "No Vote",
-                             2  : "No Vote",
-                             None : "No Vote",
+                             -1 : "No match",
+                             -2 : "No vote",
+                             2  : "No vote",
+                             None : "No vote",
                             }). \
-                    transpose()
+                    transpose(). \
+                    sort_index(axis=1)
 
     def _constituent_match_display(self, con_votes, user_token):
         cv = con_votes[ con_votes['user_token'] == user_token][['bill_id', 'vote']]
 
         cv = cv.set_index("bill_id")
 
-        cv.columns = ['Your Vote']
+        cv.columns = ['Your vote']
         return cv
 
     def _produce_bill_match_table(self, constituent_votes, representative_votes):
         # NOTE: this used to produce very nice looking tables. Some ASCII
         # conversion error is being thrown
         return pd.concat([constituent_votes, representative_votes], axis=1). \
-                    dropna()#. \
-                    # style. \
-                    # applymap(self._color_vote_word). \
-                    # set_properties(**{'text-align' : 'center'})
+                    dropna()
 
     def create_html_comparison_table(self, user_token):
+        """For a given user token, create legislator-consituent vote matching
+        table in html suitable for email"""
+
         rvst = self.rep_vote_score_table()
         rep_matchesdf = self._create_numerical_user_rep_match_df(self.cons_vote_score_table().loc[user_token],
                                                             rvst,
@@ -167,14 +157,27 @@ class VoteTally():
         con_votes = self.cons_votesdf()
 
         con_reps = cons_reps[ cons_reps['user_token'] == user_token ]
-        con_reps['full_name'] = con_reps['type'] + " " + con_reps['rep_first_name'] + " " + con_reps['rep_last_name']
+        con_reps['full_name'] = con_reps.apply( lambda x: x['type'].capitalize() + ". " + x['rep_last_name'], axis=1)
         rep_ids = con_reps['bioguide_id']
-        print(rep_ids)
 
         rv = self._rep_match_display(con_reps, rep_matchesdf)
         cv = self._constituent_match_display(con_votes, user_token)
 
-        return self._produce_bill_match_table(cv, rv).to_html()
+        cv['Your vote'] = cv['Your vote'].apply(lambda x: x.capitalize())
+
+        combined_table = self._produce_bill_match_table(cv, rv)
+        combined_table.index = [
+                "<a href='" + BillHelper.linkify_bill(idx) + "'>" +
+                BillHelper.convert_bill_name(idx) + "</a>"
+                for idx in combined_table.index
+                ]
+
+        formatted_table = BillHelper.convert_html_table_to_email_style(
+                combined_table.to_html(escape=False)
+                )
+
+        return str(formatted_table)
+
 
     def _convert_vote_to_score(self, df):
         return df.replace({
