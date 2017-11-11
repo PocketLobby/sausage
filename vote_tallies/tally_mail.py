@@ -16,8 +16,11 @@ class GenericMailer():
 
 class TallyMail(GenericMailer):
     """Send an email to a constituent"""
+    subject = "Your Vote Matches"
+    testing_destination_email_addresses = ['bryce@bridgetownint.com',
+                                           'thea.briggs@gmail.com']
 
-    def __init__(self, to, msg_text, msg_html, subject="Your Vote Matches"):
+    def __init__(self, to, msg_text, msg_html, test=False, subject=None):
         """Create a new TallyMail instance
 
         params:
@@ -28,10 +31,21 @@ class TallyMail(GenericMailer):
         subject (string) = the subject of the message
         """
 
-        self.to = to
         self.msg_text = msg_text
         self.msg_html = msg_html
-        self.subject = subject
+
+        if test:
+            self.to = {"email" : "bryce@bridgetownint.com",
+                       "first_name" : "Bryce2"
+                    }
+        else:
+            self.to = to
+
+        if subject:
+            self.subject = subject
+
+        if test:
+            self.subject = "[TEST] - %s" % self.subject
 
     def send(self):
         """Orchestraion of creating the message in email format, connecting to
@@ -42,14 +56,14 @@ class TallyMail(GenericMailer):
 
         # sendmail function takes 3 arguments: sender's address, recipient's address
         # and message to send - here it is sent as one string.
-        s.sendmail(self.email_from, self.to, msg.as_string())
+        s.sendmail(self.email_from, self.to['email'], msg.as_string())
         s.quit()
 
     def _compose_message(self):
         msg = MIMEMultipart('alternative')
         msg['Subject'] = self.subject
         msg['From'] = self.email_from
-        msg['To'] = self.to
+        msg['To'] = self.to['email']
 
         part1 = MIMEText(self.msg_text, 'plain')
         part2 = MIMEText(self._email_html_body(), 'html')
@@ -66,9 +80,10 @@ class TallyMail(GenericMailer):
         <html>
             <head></head>
             <body>
+            <p> Hi %s,</p>
 
             <p> Below is a breakdown of how you voted last week and how you were represented. Some of the bills you voted on have not yet made it to the Senate or House, so some votes from last week may only in a later tally: </p>
-        """
+        """ % self.to['first_name']
 
     def _email_body_tail(self):
         return """
