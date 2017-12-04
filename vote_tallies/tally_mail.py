@@ -2,6 +2,7 @@ import smtplib
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from vote_tally import DB
 
 class GenericMailer():
     """A class to set up a basic transactional email configuration"""
@@ -36,7 +37,8 @@ class TallyMail(GenericMailer):
 
         if test:
             self.to = {"email" : "bryce@bridgetownint.com",
-                       "first_name" : "Bryce2"
+                       "id"    : 234,
+                       "first_name" : "Bryce2",
                     }
         else:
             self.to = to
@@ -54,10 +56,18 @@ class TallyMail(GenericMailer):
         msg = self._compose_message()
         s = self._connect_to_smtp()
 
-        # sendmail function takes 3 arguments: sender's address, recipient's address
-        # and message to send - here it is sent as one string.
         s.sendmail(self.email_from, self.to['email'], msg.as_string())
         s.quit()
+        self.log_transaction()
+
+    def log_transaction(self):
+        db = DB()
+        cur = db.conn.cursor()
+        cur.execute("""INSERT INTO transactional_emails
+        (email_type, to_user_id, to_email, sent_dttm) VALUES
+        (%s, %s, %s, NOW())""", ('tally_mail', self.to['id'], self.to['email']))
+        db.conn.commit()
+
 
     def _compose_message(self):
         msg = MIMEMultipart('alternative')

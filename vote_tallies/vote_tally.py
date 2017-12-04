@@ -11,9 +11,16 @@ from bill_helper import BillHelper
 class DB:
     """Holds a connection to the database"""
     # TODO: put these into env vars
-    conn = psycopg2.connect(host='psql01.thedevranch.net',
-        user='pl_reporting',
-        database='pocketlobby')
+    conn = psycopg2.connect(host='psql02.thedevranch.net',
+        user='brycemcd',
+        database='pocketlobby_dev')
+
+    def fetch_records(self, query, subs = ()):
+        cur = self.conn.cursor()
+        cur.execute(query, subs)
+        records = cur.fetchall()
+        return records
+
 
 class RepVotes:
     """Votes in congress by legislators"""
@@ -33,6 +40,46 @@ class RepVotes:
                                 self.conn,
                                 params={"bills" : tuple(self.bills)})
         return rep_votes
+
+class ConsVotes:
+    """Votes by constituents"""
+
+class ConsVoteTally(RepVotes, ConsVotes, DB):
+    """Calculates a vote tally for a specific constituent"""
+
+    constituent_id = None
+
+    def __init__(self, constituent_id):
+        self.constituent_id = constituent_id
+
+    def get_cons_last_notification(self):
+        "find the last time we notified the constituent"
+
+        records = self.fetch_records("""
+        SELECT MAX(sent_dttm)
+        FROM transactional_emails
+        WHERE to_user_id = %s
+        """, (self.constituent_id,))
+        dttm = records[0]
+        return dttm[0] or "1900-01-01"
+
+    def get_bills_updated_since_last_notification(self):
+        "Find all bills that have been updated since the last time we sent a vote tally"
+
+        cons_last_noti = self.get_cons_last_notification()
+        results = self.fetch_records("""
+        SELECT DISTINCT(bill_id) as bill_id
+        FROM bills
+        WHERE house_activity_dttm > %s
+            OR senate_activity_dttm > %s
+        """, (cons_last_noti, cons_last_noti))
+
+        return [result[0] for result in results]
+
+    def send_vote_tally(self):
+        "Sends the constiuent the email notifying them of matches"
+        pass
+
 
 class VoteTally(RepVotes):
     """Compares constituent votes to legislative votes
@@ -109,6 +156,28 @@ class VoteTally(RepVotes):
         """
 
         return pd.read_sql(query, self.conn, params={"bills" : tuple(self.bills)})
+
+    def create_comparison_matric_for_user(self, user_token):
+        "For a given user, create a number-wise comparison matrix"""
+        con_votes = self.cons_votesdf()
+
+        if not user_token in self._get_unique_user_tokens(con_votes):
+            return None
+
+        rvst = self.rep_vote_score_table()
+        rep_matchesdf = self._create_numerical_user_rep_match_df(self.cons_vote_score_table().loc[user_token],
+                                                            rvst,
+                                                            rvst.columns,
+                                                            rvst.index
+                                                           )
+        return rep_matchesdf
+
+    def con_reps(self, user_token):
+        "Get the legislators for an individual constituent"
+
+        cons_reps = self.cons_reps()
+        con_reps = cons_reps[ cons_reps['user_token'] == user_token ]
+        return con_reps
 
     def create_html_comparison_table(self, user_token):
         """For a given user token, create legislator-consituent vote matching
