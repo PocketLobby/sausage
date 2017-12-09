@@ -9,28 +9,37 @@ class DB:
         user='brycemcd',
         database='pocketlobby_dev')
 
-class TrackedBills(DB):
+    cur = None
+
+    def db_cur(self):
+        "Memoize a connection cursor"
+        return self.cur if self.cur else self._assign_conn_cur()
+
+    def _assign_conn_cur(self):
+        self.cur = self.conn.cursor()
+        return self.cur
+
+class TrackedBill(DB):
 
     congress_data_fs_root = "/media/brycemcd/bkp/congress/congress/data/"
 
-    def __init__(self):
+    def __init__(self, bill_id):
         self.cur = self.conn.cursor()
-        self.cur.execute("""SELECT DISTINCT(bill_id) FROM bills""")
-        self.bills = [bills[0] for bills in self.cur.fetchall()]
+        self.bill_id = bill_id
 
-    def get_bill_details(self, bill_id):
+    def get_bill_details(self):
         "returns a dict with the details of the bill in hr123-115 format"
 
-        full_path = self._fs_path_to_bill(bill_id)
+        full_path = self._fs_path_to_bill()
 
         with open(full_path) as json_data:
             data = json.load(json_data)
         return data
 
-    def upsert_tuple(self, bill_id):
+    def upsert_tuple(self):
         "Create a tuple suitable for upserting in a database"
 
-        data = self.get_bill_details(bill_id)
+        data = self.get_bill_details()
 
 
         house_vote_style , \
@@ -53,15 +62,16 @@ class TrackedBills(DB):
         return upsert_tuple
 
     #notest
-    def upsert_bill_id(self, bill_id):
-        "Given a bill_id, update the bills details in the database"
-        upsert_tup = self.upsert_tuple(bill_id)
+    def upsert_bill_id(self):
+        "Update the bill's details in the database"
+        upsert_tup = self.upsert_tuple(self.bill_id)
         return self.upsert(upsert_tup)
 
     # notest
-    def upsert(self, upsert_tuple):
+    def upsert(self, upsert_tuple = None):
         "Given a tuple suitable for upserting, send it to the database"
-        self.cur.execute("""
+        upsert_tuple = upsert_tuple if upsert_tuple else self.upsert_tuple()
+        self.db_cur().execute("""
             INSERT INTO bills (
                 bill_id
                 , active
@@ -111,13 +121,13 @@ class TrackedBills(DB):
             if hsh.get("type", False) == "vote":
 
                 if hsh.get("where", False) == "h":
-                    house_vote_style = self.map_how(hsh.get("how", None))
+                    house_vote_style = self._map_how(hsh.get("how", None))
 
                     if house_vote_style == "rc":
                         house_vote_id = self._get_roll_call(hsh)
 
                 if hsh.get("where", False) == "s":
-                    senate_vote_style = self.map_how(hsh.get("how", None))
+                    senate_vote_style = self._map_how(hsh.get("how", None))
 
                     if senate_vote_style == "rc":
                         senate_vote_id = self._get_roll_call(hsh)
@@ -130,7 +140,7 @@ class TrackedBills(DB):
     def _get_roll_call(self, action_hash):
         return action_hash.get("where", "") + action_hash.get("roll", "") + "-115.2017"
 
-    def map_how(self, how):
+    def _map_how(self, how):
         if "voice" in how.lower():
             return "vv"
         if "roll" in how:
@@ -139,8 +149,8 @@ class TrackedBills(DB):
             return "uc"
         return None
 
-    def _fs_path_to_bill(self, bill_id):
-        house, bill, congress = self._deconstruct_bill_id(bill_id)
+    def _fs_path_to_bill(self):
+        house, bill, congress = self._deconstruct_bill_id()
 
         full_path = ""
         full_path += self.congress_data_fs_root + "/"
@@ -148,17 +158,27 @@ class TrackedBills(DB):
         full_path += house + "/" + bill + "/data.json"
         return full_path
 
-    def _deconstruct_bill_id(self, bill_id):
-        splits = bill_id.split("-")
+    def _deconstruct_bill_id(self):
+        splits = self.bill_id.split("-")
 
         congress = splits[1]
         bill = splits[0]
 
-        if "hr" in bill_id:
+        if "hr" in self.bill_id:
             house = "hr"
-        elif "hjres" in bill_id:
+        elif "hjres" in self.bill_id:
             house = "hjres"
-        elif "s" in bill_id:
+        elif "s" in self.bill_id:
             house = "s"
 
         return (house, bill, congress)
+
+    #notest
+    @classmethod
+    def update_all_pl_bills(cls):
+        db = DB()
+        db.db_cur().execute("""SELECT DISTINCT(bill_id) FROM bills LIMIT 1""")
+        bills = [bills[0] for bills in db.db_cur().fetchall()]
+
+        for bill in bills:
+            TrackedBills(bill).upsert

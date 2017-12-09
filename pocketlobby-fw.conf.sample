@@ -1,0 +1,4 @@
+flyway.url=jdbc:postgresql://psql01.thedevranch.net/pocketlobby_dev
+flyway.user=brycemcd
+flyway.password=<password>
+flyway.locations=filesystem:migrations/

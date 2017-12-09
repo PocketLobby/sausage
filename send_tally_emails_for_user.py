@@ -11,12 +11,10 @@ import sys
 from vote_tallies.tally_mail import TallyMail
 from vote_tallies import vote_tally as vt
 from vote_tallies.vote_tally import DB
+from vote_tallies.vote_tally import ConsVoteTally
 
 
 parser = argparse.ArgumentParser(description='Send tally emails to constituents')
-
-parser.add_argument('bills', metavar='bill_id', nargs='?',
-        help='A list of bills to send tallies for i.e. hr123 or s345')
 
 parser.add_argument('--no-email', action='store_true',
         help='When provided, no emails will be sent')
@@ -26,33 +24,6 @@ parser.add_argument('--test', action='store_true',
 
 args = parser.parse_args()
 
-bill = args.bills # NOTE: remove the next line if args are needed
-bills = [
-        'hr2921',
-        'hr2941',
-        'hr3567',
-        'hr2521',
-        'hr3903',
-        'hr1585',
-        'hr3279',
-        'hr1074',
-        'hr425',
-        'hr849',
-        ]
-
-for bill in bills:
-    if not re.match(r"(hr|s|hjres)(\d{1,})", bill):
-        print("""
-        A bill must be in the format: hrX, sX or hjresX. %s does
-        not meet those formatting requirements.
-        """ % bill)
-
-        sys.exit(1)
-
-
-bills = [full+ "-115" for full in bills]
-
-vto = vt.VoteTally(bills)
 
 if args.test:
     print("[ TEST MODE ]")
@@ -68,6 +39,9 @@ participants = []
 non_participants = []
 
 for constituent in all_constituents.to_dict('records'):
+    cvt = ConsVoteTally(constituent['id'])
+    bills = cvt.get_bill_updated_since_last_notification()
+    vto = vt.VoteTally(bills)
     vote_table = vto.create_html_comparison_table(constituent['user_token'])
 
     if not vote_table:
@@ -81,14 +55,15 @@ for constituent in all_constituents.to_dict('records'):
 
     if not args.no_email:
         # for recipient in to:
-        to = {'email' : 'bryce+test@bridgetownint.com',
-              'first_name' : 'Bryce',}
+        to = {'email' : constituent['email'],
+              'id'    : constituent['id'],
+              'first_name' : constituent['first_name'],
+              }
 
         mailer = TallyMail(to, vote_table, vote_table, test=args.test)
         print(mailer.send())
         # NOTE: I'm getting a connection refused error. Rate limit this shiz
         sleep(5.00)
-    break
 
 print("")
 print("participants: %s" % participants)
