@@ -6,6 +6,6 @@ class Configurator:
 
     def __init__(self):
         self.config = configparser.ConfigParser()
-        self.config.read('../sausage_config.conf')
+        self.config.read('sausage_config.conf')
         # TODO: set the env through an env variable
         self.config = self.config['test']

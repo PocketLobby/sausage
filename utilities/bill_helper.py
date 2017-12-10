@@ -1,8 +1,8 @@
 """Some utility functions to help with sorting and general formatting"""
 
 import re
-import configparser
 from bs4 import BeautifulSoup
+from utilities.configurator import Configurator
 
 class BillHelper():
 
@@ -21,10 +21,7 @@ class BillHelper():
         sort of messaging system
         """
 
-        # TODO: move this out into a proper environment class
-        config = configparser.ConfigParser()
-        config.read('../sausage_config.conf')
-        config = config['test']
+        config = Configurator().config
 
         bill_matcher = cls._bill_matcher(bill_name)
 

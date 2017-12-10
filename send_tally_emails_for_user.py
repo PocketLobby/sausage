@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 
-from random import randint
 from time import sleep
 import argparse
 import pandas as pd
-import psycopg2
-import re
-import sys
 
 from vote_tallies.tally_mail import TallyMail
 from vote_tallies import vote_tally as vt
