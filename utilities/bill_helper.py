@@ -1,6 +1,7 @@
 """Some utility functions to help with sorting and general formatting"""
 
 import re
+import configparser
 from bs4 import BeautifulSoup
 
 class BillHelper():
@@ -8,7 +9,32 @@ class BillHelper():
     @classmethod
     def _bill_matcher(cls, bill_name):
         "find the prefix for the bill and return a pretty printed version"
-        return re.search(r"(hr|s|hjres)(\d{1,})", bill_name)
+        return re.search(r"(hconres|sconres|hjres|sjres|hres|sres|hr|s)(\d{1,})", bill_name)
+
+    @classmethod
+    def bill_fs_location(cls, bill_name):
+        """
+        Find the location on the filesystem where details about the bill can
+        be extracted
+
+        TODO: in the future, I imagine this will be incorporated between some
+        sort of messaging system
+        """
+
+        # TODO: move this out into a proper environment class
+        config = configparser.ConfigParser()
+        config.read('../sausage_config.conf')
+        config = config['test']
+
+        bill_matcher = cls._bill_matcher(bill_name)
+
+        bill_location = ""
+        bill_location += config['congress_data_fs_root']
+        bill_location += "115/bills/"
+        bill_location += bill_matcher[1] + "/" + bill_matcher[0]
+        bill_location += "/data.json"
+
+        return bill_location
 
     @classmethod
     def linkify_bill(cls, bill_name):

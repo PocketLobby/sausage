@@ -1,0 +1,12 @@
+[DEFAULT]
+
+[development]
+
+[test]
+# NOTE: db_password should be accessed through ~/.pgpass
+db_host = psql02.thedevranch.net
+db_user = brycemcd
+db_db   = pocketlobby_dev
+congress_data_fs_root = /media/brycemcd/bkp/congress/congress/
+
+[production]

@@ -1,3 +1,9 @@
+# IDE
+.idea/
+
+# conf file
+sausage_config.conf
+
 # Flyway
 pocketlobby-fw.conf
 

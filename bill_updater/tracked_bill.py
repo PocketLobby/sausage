@@ -1,27 +1,13 @@
 """The canonical source for bills that we're tracking"""
-import psycopg2
 import json
-
-class DB:
-    """Holds a connection to the database"""
-    # TODO: put these into env vars
-    conn = psycopg2.connect(host='psql02.thedevranch.net',
-        user='brycemcd',
-        database='pocketlobby_dev')
-
-    cur = None
-
-    def db_cur(self):
-        "Memoize a connection cursor"
-        return self.cur if self.cur else self._assign_conn_cur()
-
-    def _assign_conn_cur(self):
-        self.cur = self.conn.cursor()
-        return self.cur
+from utilities.configurator import Configurator
+from utilities.db import DB
+from utilities.bill_helper import BillHelper
 
 class TrackedBill(DB):
 
-    congress_data_fs_root = "/media/brycemcd/bkp/congress/congress/data/"
+    config = Configurator().config
+    congress_data_fs_root = config['congress_data_fs_root']
 
     def __init__(self, bill_id):
         self.cur = self.conn.cursor()
@@ -30,10 +16,11 @@ class TrackedBill(DB):
     def get_bill_details(self):
         "returns a dict with the details of the bill in hr123-115 format"
 
-        full_path = self._fs_path_to_bill()
+        full_path = BillHelper.bill_fs_location(self.bill_id)
 
         with open(full_path) as json_data:
             data = json.load(json_data)
+
         return data
 
     def upsert_tuple(self):
@@ -149,34 +136,11 @@ class TrackedBill(DB):
             return "uc"
         return None
 
-    def _fs_path_to_bill(self):
-        house, bill, congress = self._deconstruct_bill_id()
-
-        full_path = ""
-        full_path += self.congress_data_fs_root + "/"
-        full_path += congress + "/bills/"
-        full_path += house + "/" + bill + "/data.json"
-        return full_path
-
-    def _deconstruct_bill_id(self):
-        splits = self.bill_id.split("-")
-
-        congress = splits[1]
-        bill = splits[0]
-
-        if "hr" in self.bill_id:
-            house = "hr"
-        elif "hjres" in self.bill_id:
-            house = "hjres"
-        elif "s" in self.bill_id:
-            house = "s"
-
-        return (house, bill, congress)
-
     #notest
     @classmethod
     def update_all_pl_bills(cls):
         db = DB()
+        # FIXME: take away the LIMIT 1
         db.db_cur().execute("""SELECT DISTINCT(bill_id) FROM bills LIMIT 1""")
         bills = [bills[0] for bills in db.db_cur().fetchall()]
 
