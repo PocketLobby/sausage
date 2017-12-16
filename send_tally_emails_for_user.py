@@ -5,9 +5,9 @@ import argparse
 import pandas as pd
 
 from vote_tallies.tally_mail import TallyMail
-from vote_tallies import vote_tally as vt
-from vote_tallies.vote_tally import DB
-from vote_tallies.vote_tally import ConsVoteTally
+from vote_tallies import cons_vote_tally as vt
+from vote_tallies.cons_vote_tally import DB
+from vote_tallies.cons_vote_tally import ConsVoteTally
 
 
 parser = argparse.ArgumentParser(description='Send tally emails to constituents')

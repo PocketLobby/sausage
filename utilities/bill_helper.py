@@ -41,10 +41,14 @@ class BillHelper():
         bill_matcher = cls._bill_matcher(bill_name)
 
         bill_prefix_mapper = {
-                "hr" : "house-bill/",
-                "s"  : "senate-bill/",
-                "hjres" : "house-joint-resolution/"
-
+                "hconres": "house-concurrent-resolution/",
+                "hjres": "house-joint-resolution/",
+                "hr": "house-bill/",
+                "hres": "house-resolution/",
+                "s": "senate-bill/",
+                "sconres": "senate-concurrent-resolution/",
+                "sjres": "senate-joint-resolution/",
+                "sres": "senate-resolution/",
                 }
 
         base_url = "https://www.congress.gov/bill/115th-congress/"
@@ -58,9 +62,14 @@ class BillHelper():
         """Converts billnames like hr123-115 into their proper display: H.R. 123"""
 
         bill_type_splitter = {
-            "hr" : "H.R. ",
-            "s"  : "S. ",
+            "hr": "H.R. ",
+            "s": "S. ",
             "hjres" : "H. J. Res. ",
+            "sjres": "S. J. Res. ",
+            "hconres": "H. Con. Res.",
+            "sconres": "S. Con. Res.",
+            "hres": "H. Res. ",
+            "sres": "S. Res. ",
         }
 
         bill_matcher = cls._bill_matcher(bill_name)

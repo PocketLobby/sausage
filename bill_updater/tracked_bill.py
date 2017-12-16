@@ -1,10 +1,11 @@
-"""The canonical source for bills that we're tracking"""
 import json
 from utilities.configurator import Configurator
 from utilities.db import DB
 from utilities.bill_helper import BillHelper
 
+
 class TrackedBill(DB):
+    """The canonical source for bills that we're tracking"""
 
     config = Configurator().config
     congress_data_fs_root = config['congress_data_fs_root']

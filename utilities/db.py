@@ -15,6 +15,11 @@ class DB:
         "Memoize a connection cursor"
         return self.cur if self.cur else self._assign_conn_cur()
 
+    def fetch_records(self, query, subs = ()):
+        self.db_cur().execute(query, subs)
+        records = self.db_cur().fetchall()
+        return records
+
     def _assign_conn_cur(self):
         self.cur = self.conn.cursor()
         return self.cur
