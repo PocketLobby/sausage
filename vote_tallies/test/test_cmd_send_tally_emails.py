@@ -136,8 +136,10 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
         cste._send_email.assert_called_once_with(dict, self.email_string)
 
 
+    @patch("builtins.print")
     @patch("time.sleep")
-    def test_call_in_test_mode(self, mock_time_sleep):
+    def test_call_in_test_mode(self, mock_time_sleep, mock_print):
+        mock_print.return_value = None
         mock_time_sleep.return_value = None
 
         with patch.object(DB, 'fetch_records') as mock_db:

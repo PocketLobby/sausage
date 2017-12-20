@@ -58,6 +58,7 @@ class ConsVoteTally():
           JOIN representatives AS r on r.bioguide_id = vcrvm.bioguide_id
 
         WHERE bill_id IN %(bills)s
+          AND vcrvm.cons_vote IS NOT NULL
           AND vcrvm.constituent_id = %(constituent_id)s
           AND vcrvm.bioguide_id IN (
             SELECT bioguide_id
@@ -112,8 +113,3 @@ class ConsVoteTally():
             df.to_html(escape=False)
         )
         return formatted_table
-
-    #TODO send_vote_tally()
-    def send_vote_tally(self):
-        """Sends the constiuent the email notifying them of matches"""
-        pass

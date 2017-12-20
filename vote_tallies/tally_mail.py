@@ -2,17 +2,22 @@ import smtplib
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from vote_tally import DB
+from utilities.db import DB
+from utilities.configurator import Configurator
 
 class GenericMailer():
     """A class to set up a basic transactional email configuration"""
 
+    config = Configurator().config
     email_from = "Pocket Lobby <email@pocketlobby.org>"
+    smtp_host = config['transactional_smtp_host']
+    smtp_username = config['transactional_smtp_user_name']
+    smtp_password = config['transactional_smtp_password']
 
     def _connect_to_smtp(self):
-        s = smtplib.SMTP_SSL('gator4021.hostgator.com')
+        s = smtplib.SMTP_SSL(self.smtp_host)
         s.set_debuglevel(True) # debug
-        s.login('email@pocketlobby.org', 'u23@$k4WzEcQVk*kdcRWxh*f^q')
+        s.login(self.smtp_username, self.smtp_password)
         return s
 
 class TallyMail(GenericMailer):

@@ -2,15 +2,18 @@ import time
 from utilities.db import DB
 from vote_tallies.cons_vote_tally import ConsVoteTally
 from vote_tallies.tally_mail import TallyMail
+from utilities.configurator import Configurator
 
 class CmdSendTallyEmails:
     """
     Send emails to constituents based on their voting behavior
     """
 
-    TEST_EMAIL_RECIPIENT = "a@b.com" # TODO: make this an env var
+    config = Configurator().config
+    TEST_EMAIL_RECIPIENT = config["test_transactional_email_address_to"]
     cmd_line_args = None
     constituent_tuple = ()
+
 
     def __init__(self, constituent_tuple, cmd_line_args):
         self.cmd_line_args = cmd_line_args
@@ -64,6 +67,7 @@ class CmdSendTallyEmails:
         constituents = conn.fetch_records(query)
 
         for cons in constituents:
+            print("processing %s" % cons[1])
             klass(cons, args).execute()
             # NOTE: I'm getting a connection refused error. Rate limit this shiz
             time.sleep(5.00)

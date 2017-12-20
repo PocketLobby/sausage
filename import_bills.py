@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+
 from bill_updater.tracked_bill import TrackedBill
 
 parser = argparse.ArgumentParser(description="Import bills into database")
@@ -25,5 +26,3 @@ for bill in args.bills:
 
     if not args.test:
         bill.upsert()
-
-

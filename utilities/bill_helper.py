@@ -17,7 +17,7 @@ class BillHelper():
         Find the location on the filesystem where details about the bill can
         be extracted
 
-        TODO: in the future, I imagine this will be incorporated between some
+        NOTE: in the future, I imagine this will be incorporated between some
         sort of messaging system
         """
 
