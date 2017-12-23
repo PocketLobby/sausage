@@ -73,6 +73,10 @@ class ConsVoteTally():
 
     def map_matches_to_df(self):
         vote_matches = self.vote_matches_for_bills()
+
+        if not vote_matches:
+            return pd.DataFrame()
+
         vote_matches_df = pd.DataFrame([v.__dict__ for v in vote_matches])
 
         # produces a summary with numerical values
@@ -103,6 +107,9 @@ class ConsVoteTally():
     def matches_to_html(self):
         """dataframe to html"""
         df = self.map_matches_to_df()
+        if df.empty:
+            return None
+
         df.index = [
             "<a href='" + BillHelper.linkify_bill(idx) + "'>" +
             BillHelper.convert_bill_name(idx) + "</a>"

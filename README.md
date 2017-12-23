@@ -22,3 +22,7 @@ parameters in the configuration for your development environment.
 
 In a console in the project root directory, run:
 `flyway migrate -configFile=pocketlobby-fw.conf`
+
+## TODO:
+
++ [ ] hr4300 passed in an unusal way. Support that method of passage

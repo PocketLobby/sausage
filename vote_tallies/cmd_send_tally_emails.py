@@ -44,8 +44,9 @@ class CmdSendTallyEmails:
         return ConsVoteTally(self.constituent_tuple[0])
 
     def _send_email(self, to, email_content):
-        mailer = TallyMail(to, email_content, email_content, test=self.cmd_line_args.test)
-        print(mailer.send())
+        if email_content:
+            mailer = TallyMail(to, email_content, email_content, test=self.cmd_line_args.test)
+            print(mailer.send())
 
 
     @classmethod
@@ -70,4 +71,5 @@ class CmdSendTallyEmails:
             print("processing %s" % cons[1])
             klass(cons, args).execute()
             # NOTE: I'm getting a connection refused error. Rate limit this shiz
+            # TODO: move this to where the email is called. Update @patch tests
             time.sleep(5.00)
