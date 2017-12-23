@@ -29,9 +29,9 @@ class CmdSendTallyEmails:
 
         if bills and self.cmd_line_args.email:
             to = {
-                "email" : to_address,
-                "id"    : self.constituent_tuple[0],
-                "first_name" : self.constituent_tuple[2],
+                "email": to_address,
+                "id": self.constituent_tuple[0],
+                "first_name": self.constituent_tuple[2],
             }
 
             self._send_email(to, cvt.matches_to_html())
@@ -62,7 +62,7 @@ class CmdSendTallyEmails:
         conn = DB()
         klass = klass if klass else CmdSendTallyEmails
 
-        #query = "SELECT * FROM constituents LIMIT 2 OFFSET 4"
+        # query = "SELECT * FROM constituents LIMIT 2 OFFSET 4"
         query = "SELECT * FROM constituents"
         constituents = conn.fetch_records(query)
 
