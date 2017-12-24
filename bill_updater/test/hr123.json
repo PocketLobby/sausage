@@ -1,0 +1,113 @@
+{
+  "actions": [
+    {
+      "acted_at": "2017-01-03", 
+      "action_code": "Intro-H", 
+      "references": [], 
+      "text": "Introduced in House", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-01-03", 
+      "action_code": "H11100", 
+      "committees": [
+        "HSBA"
+      ], 
+      "references": [], 
+      "status": "REFERRED", 
+      "text": "Referred to the House Committee on Financial Services.", 
+      "type": "referral"
+    }
+  ], 
+  "amendments": [], 
+  "bill_id": "hr123-115", 
+  "bill_type": "hr", 
+  "by_request": false, 
+  "committee_reports": [], 
+  "committees": [
+    {
+      "activity": [
+        "referral"
+      ], 
+      "committee": "House Financial Services", 
+      "committee_id": "HSBA"
+    }
+  ], 
+  "congress": "115", 
+  "cosponsors": [
+    {
+      "bioguide_id": "G000581", 
+      "district": "15", 
+      "name": "Gonzalez, Vicente", 
+      "original_cosponsor": false, 
+      "sponsored_at": "2017-06-26", 
+      "state": "TX", 
+      "title": "Rep", 
+      "withdrawn_at": null
+    }
+  ], 
+  "enacted_as": null, 
+  "history": {
+    "active": false, 
+    "awaiting_signature": false, 
+    "enacted": false, 
+    "vetoed": false
+  }, 
+  "introduced_at": "2017-01-03", 
+  "number": "123", 
+  "official_title": "To extend the pilot program under section 258 of the National Housing Act that establishes an automated process for providing alternative credit rating information for mortgagors and prospective mortgagors under certain mortgages.", 
+  "popular_title": null, 
+  "related_bills": [], 
+  "short_title": "FHA Alternative Credit Pilot Program Reauthorization Act of 2017", 
+  "sponsor": {
+    "bioguide_id": "G000553", 
+    "district": "9", 
+    "name": "Green, Al", 
+    "state": "TX", 
+    "title": "Rep", 
+    "type": "person"
+  }, 
+  "status": "REFERRED", 
+  "status_at": "2017-01-03", 
+  "subjects": [
+    "Consumer credit", 
+    "Government information and archives", 
+    "Government lending and loan guarantees", 
+    "Housing and community development", 
+    "Housing finance and home ownership"
+  ], 
+  "subjects_top_term": "Housing and community development", 
+  "summary": {
+    "as": "Introduced in House", 
+    "date": "2017-01-03T05:00:00Z", 
+    "text": "FHA Alternative Credit Pilot Program Reauthorization Act of 2017\n\n This bill amends the National Housing Act to reauthorize a pilot program that establishes for mortgagees an automated process for providing alternative credit rating information on mortgagors and prospective mortgagors under mortgages on one- to four-family residences who have insufficient credit histories for determining their creditworthiness."
+  }, 
+  "titles": [
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "FHA Alternative Credit Pilot Program Reauthorization Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "FHA Alternative Credit Pilot Program Reauthorization Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "To extend the pilot program under section 258 of the National Housing Act that establishes an automated process for providing alternative credit rating information for mortgagors and prospective mortgagors under certain mortgages.", 
+      "type": "official"
+    }, 
+    {
+      "as": null, 
+      "is_for_portion": false, 
+      "title": "FHA Alternative Credit Pilot Program Reauthorization Act of 2017", 
+      "type": "display"
+    }
+  ], 
+  "updated_at": "2017-06-27T07:15:59Z", 
+  "url": "https://www.gpo.gov/fdsys/bulkdata/BILLSTATUS/115/hr/BILLSTATUS-115hr123.xml"
+}
