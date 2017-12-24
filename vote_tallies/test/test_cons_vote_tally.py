@@ -89,7 +89,7 @@ class ConsVoteTallyTest(unittest.TestCase):
         cvt.vote_matches_for_bills = MagicMock(return_value=[])
 
         ret = cvt.map_matches_to_df()
-        self.assertIsNone(ret)
+        self.assertTrue(ret.empty)
 
 
     def test_vote_matches_for_bills(self):

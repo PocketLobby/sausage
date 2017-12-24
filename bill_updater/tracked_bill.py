@@ -57,7 +57,8 @@ class TrackedBill(DB):
 
     # notest
     def upsert(self, upsert_tuple = None):
-        "Given a tuple suitable for upserting, send it to the database"
+        """Given a tuple suitable for upserting, send it to the database"""
+
         upsert_tuple = upsert_tuple if upsert_tuple else self.upsert_tuple()
         self.db_cur().execute("""
             INSERT INTO bills (
@@ -141,9 +142,9 @@ class TrackedBill(DB):
     @classmethod
     def update_all_pl_bills(cls):
         db = DB()
-        # FIXME: take away the LIMIT 1
-        db.db_cur().execute("""SELECT DISTINCT(bill_id) FROM bills LIMIT 1""")
+        db.db_cur().execute("""SELECT DISTINCT(bill_id) FROM bills""")
         bills = [bills[0] for bills in db.db_cur().fetchall()]
 
         for bill in bills:
-            TrackedBills(bill).upsert
+            print("updating %s" % bill)
+            TrackedBill(bill).upsert()
