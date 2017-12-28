@@ -150,7 +150,7 @@ class LegislativeVotes(DB):
 
     # notest
     @classmethod
-    def unpersisted_legislative_votes(cls):
+    def upsert_uncaptured_votes(cls):
         """Find all legislative votes that have not been saved and save them"""
 
         query = """
@@ -171,8 +171,14 @@ class LegislativeVotes(DB):
         """
 
         bills = DB().fetch_records(query)
-        for bill in bills:
-            print(bill)
+        for result_tuple in bills:
+            vote_id = result_tuple[0]
+            print(vote_id)
+            lv = LegislativeVotes(vote_id)
+            lv.upsert_bill_votes()
+
+            ilv = IndividualLegislatorVote(vote_id)
+            ilv.upsert_all_votes()
 
 
 class IndividualLegislatorVote(LegislativeVotes):

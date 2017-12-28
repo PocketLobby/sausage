@@ -20,6 +20,15 @@ To send vote tallys to constituents, run this command:
 
 ` ENV=production ./send_tally_emails_for_user.py --email`
 
+## Legislative Bill Votes
+
+Update vote records in the database by calling
+
+`ENV=production ./load_legislator_votes.py`
+
+This will examine the votes contained in the `bills` table, create vote records
+and then create records for individual legislators' votes.
+
 ## Database
 
 Database migrations managed via [Flyway](https://flywaydb.org/). To get
