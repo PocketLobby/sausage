@@ -101,15 +101,11 @@ class LegislativeVotesTest(unittest.TestCase):
                          self.lv.abstain_voter_cnt)
 
     def test_upsert_into_bill_votes(self):
-        # fake a db
-        db = MagicMock()
-        db.execute = MagicMock(return_value=True)
-
         lv = self.basic_obj()
+        lv.execute = MagicMock(return_value=True)
 
-        lv.db_cur = db
         lv.upsert_bill_votes()
-        lv.db_cur().execute.assert_called_once_with(unittest.mock.ANY,
+        lv.execute.assert_called_once_with(unittest.mock.ANY,
                                                     lv.insert_tuple)
 
 
@@ -223,19 +219,14 @@ class IndividualLegislatorVoteTest(unittest.TestCase):
         self.assertIn(('h123-116.2018', 'G000123', 'abstain'), votes)
 
     def test_save_individual_vote(self):
-        # fake a db
-        db = MagicMock()
-        db.execute = MagicMock(return_value=True)
-
         lv = IndividualLegislatorVote('h123-116.2018')
-        lv.db_cur = db
+        lv.execute = MagicMock(return_value=True)
 
         lv.vote_types_to_insert_tuples = MagicMock(return_value=self.vote_tuples)
-        lv.db_cur().execute = MagicMock()
 
         lv.upsert_individual_vote(self.vote_tuples[0])
-        lv.db_cur().execute.assert_called_once_with(unittest.mock.ANY,
-                                                    self.vote_tuples[0])
+        lv.execute.assert_called_once_with(unittest.mock.ANY,
+                self.vote_tuples[0])
 
     def test_upsert_all_votes(self):
         lv = IndividualLegislatorVote('h123-116.2018')

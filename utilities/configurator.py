@@ -9,3 +9,4 @@ class Configurator:
         self.config = configparser.ConfigParser()
         self.config.read('sausage_config.conf')
         self.config = self.config[os.environ.get("ENV", "DEFAULT")]
+        self.config['ENV'] = os.environ.get("ENV")

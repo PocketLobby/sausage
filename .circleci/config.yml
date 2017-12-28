@@ -39,12 +39,18 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
+      # NOTE: any of configs in this file should be mocked in the tests
+      - run:
+          name: restore config file
+          command: |
+            mv sausage_config.conf.example sausage_config.conf
+
       # run tests!
       - run:
           name: run tests
           command: |
             . venv/bin/activate
-            python -m unittest discover
+            python3 -m unittest discover
 
       - store_artifacts:
           path: test-reports

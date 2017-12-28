@@ -11,6 +11,6 @@ transactional_smtp_password = pass
 db_host = psql02.thedevranch.net
 db_user = brycemcd
 db_db   = pocketlobby_dev
-congress_data_fs_root = /media/brycemcd/bkp/congress/congress/
+congress_data_fs_root = /media/brycemcd/bkp/congress/congress/data/
 
 [production]

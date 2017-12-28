@@ -11,15 +11,17 @@ class TrackedBill(DB):
     congress_data_fs_root = config['congress_data_fs_root']
 
     def __init__(self, bill_id):
-        self.cur = self.conn.cursor()
         self.bill_id = bill_id
+
+    @property
+    def cur(self):
+        self._cur = self._cur if self._cur else self._get_cur()
+        return self._cur
 
     def get_bill_details(self):
         "returns a dict with the details of the bill in hr123-115 format"
 
-        full_path = BillHelper.bill_fs_location(self.bill_id)
-
-        with open(full_path) as json_data:
+        with open(self._bill_path()) as json_data:
             data = json.load(json_data)
 
         return data
@@ -137,6 +139,13 @@ class TrackedBill(DB):
         if "unanimous consent" in how.lower():
             return "uc"
         return None
+
+    def _get_cur(self):
+        return self.conn.cursor()
+
+    def _bill_path(self):
+        return BillHelper.bill_fs_location(self.bill_id)
+
 
     #notest
     @classmethod
