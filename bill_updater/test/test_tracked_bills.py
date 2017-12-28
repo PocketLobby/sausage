@@ -1,5 +1,7 @@
 import unittest
-from tracked_bill import TrackedBill
+
+from bill_updater.tracked_bill import TrackedBill
+
 
 class TrackedBillsTest(unittest.TestCase):
 
