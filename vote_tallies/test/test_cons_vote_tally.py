@@ -84,6 +84,14 @@ class ConsVoteTallyTest(unittest.TestCase):
         uniq_bills_cnt = len(set([row[2] for row in self.db_return_list()]))
         self.assertEqual(uniq_bills_cnt, len(ret))
 
+    def test_map_matched_to_df_with_no_recent_votes(self):
+        cvt = self.make_cvt()
+        cvt.vote_matches_for_bills = MagicMock(return_value=[])
+
+        ret = cvt.map_matches_to_df()
+        self.assertTrue(ret.empty)
+
+
     def test_vote_matches_for_bills(self):
         cvt = self.make_cvt()
 

@@ -29,9 +29,9 @@ class CmdSendTallyEmails:
 
         if bills and self.cmd_line_args.email:
             to = {
-                "email" : to_address,
-                "id"    : self.constituent_tuple[0],
-                "first_name" : self.constituent_tuple[2],
+                "email": to_address,
+                "id": self.constituent_tuple[0],
+                "first_name": self.constituent_tuple[2],
             }
 
             self._send_email(to, cvt.matches_to_html())
@@ -44,8 +44,9 @@ class CmdSendTallyEmails:
         return ConsVoteTally(self.constituent_tuple[0])
 
     def _send_email(self, to, email_content):
-        mailer = TallyMail(to, email_content, email_content, test=self.cmd_line_args.test)
-        print(mailer.send())
+        if email_content:
+            mailer = TallyMail(to, email_content, email_content, test=self.cmd_line_args.test)
+            print(mailer.send())
 
 
     @classmethod
@@ -62,7 +63,7 @@ class CmdSendTallyEmails:
         conn = DB()
         klass = klass if klass else CmdSendTallyEmails
 
-        #query = "SELECT * FROM constituents LIMIT 2 OFFSET 4"
+        # query = "SELECT * FROM constituents LIMIT 2 OFFSET 4"
         query = "SELECT * FROM constituents"
         constituents = conn.fetch_records(query)
 
@@ -70,4 +71,5 @@ class CmdSendTallyEmails:
             print("processing %s" % cons[1])
             klass(cons, args).execute()
             # NOTE: I'm getting a connection refused error. Rate limit this shiz
+            # TODO: move this to where the email is called. Update @patch tests
             time.sleep(5.00)

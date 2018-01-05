@@ -40,13 +40,10 @@ class TallyMail(GenericMailer):
         self.msg_text = msg_text
         self.msg_html = msg_html
 
+        self.to = to
         if test:
-            self.to = {"email" : "bryce@bridgetownint.com",
-                       "id"    : 234,
-                       "first_name" : "Bryce2",
-                    }
-        else:
-            self.to = to
+            self.to["email"] = "bryce@bridgetownint.com"
+            self.to["id"] = -99
 
         if subject:
             self.subject = subject
@@ -88,7 +85,7 @@ class TallyMail(GenericMailer):
         return msg
 
     def _email_html_body(self):
-        return self._email_body_head() + self.msg_html + self._email_body_tail()
+        return self._email_body_head() + str(self.msg_html) + self._email_body_tail()
 
     def _email_body_head(self):
         return """

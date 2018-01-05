@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from vote_tallies.cmd_send_tally_emails import CmdSendTallyEmails
 from vote_tallies.cons_vote_tally import ConsVoteTally
 from utilities.db import DB
+from vote_tallies.tally_mail import TallyMail
 
 class CmdSendTallyEmailsTest(unittest.TestCase):
 
@@ -134,6 +135,14 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
         dict["email"] = cste.TEST_EMAIL_RECIPIENT
 
         cste._send_email.assert_called_once_with(dict, self.email_string)
+
+    def test_send_email_when_content_exists(self):
+        cste = self.simple_obj()
+        with patch.object(TallyMail, 'send') as mock_mailer:
+            mock_mailer.return_value = True
+
+            cste._send_email("not@email.com", None)
+            mock_mailer.assert_not_called()
 
 
     @patch("builtins.print")
