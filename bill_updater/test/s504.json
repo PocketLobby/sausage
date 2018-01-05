@@ -1,0 +1,375 @@
+{
+  "actions": [
+    {
+      "acted_at": "2017-03-02", 
+      "action_code": "10000", 
+      "references": [], 
+      "text": "Introduced in Senate", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-03-02", 
+      "action_code": "", 
+      "committees": [
+        "SSGA"
+      ], 
+      "references": [], 
+      "status": "REFERRED", 
+      "text": "Read twice and referred to the Committee on Homeland Security and Governmental Affairs.", 
+      "type": "referral"
+    }, 
+    {
+      "acted_at": "2017-05-17", 
+      "action_code": "", 
+      "committees": [
+        "SSGA"
+      ], 
+      "references": [], 
+      "status": "REPORTED", 
+      "text": "Committee on Homeland Security and Governmental Affairs. Ordered to be reported without amendment favorably.", 
+      "type": "calendar"
+    }, 
+    {
+      "acted_at": "2017-08-01", 
+      "action_code": "", 
+      "committee": "Homeland Security and Governmental Affairs", 
+      "committees": [
+        "SSGA"
+      ], 
+      "references": [], 
+      "text": "Committee on Homeland Security and Governmental Affairs. Reported by Senator Johnson without amendment. With written report No. 115-140.", 
+      "type": "reported"
+    }, 
+    {
+      "acted_at": "2017-08-01", 
+      "action_code": "", 
+      "calendar": "Senate Legislative", 
+      "number": "190", 
+      "references": [], 
+      "text": "Placed on Senate Legislative Calendar under General Orders. Calendar No. 190.", 
+      "type": "calendar", 
+      "under": "General Orders"
+    }, 
+    {
+      "acted_at": "2017-09-26", 
+      "action_code": "", 
+      "references": [
+        {
+          "reference": "CR S6144-6145", 
+          "type": "consideration"
+        }
+      ], 
+      "text": "Measure laid before Senate by unanimous consent.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-09-26", 
+      "action_code": "", 
+      "how": "by Unanimous Consent", 
+      "references": [
+        {
+          "reference": "CR S6144-6145", 
+          "type": "text"
+        }
+      ], 
+      "result": "pass", 
+      "status": "PASS_OVER:SENATE", 
+      "text": "Passed Senate with an amendment by Unanimous Consent.", 
+      "type": "vote", 
+      "vote_type": "vote", 
+      "where": "s"
+    }, 
+    {
+      "acted_at": "2017-09-27", 
+      "action_code": "", 
+      "references": [], 
+      "text": "Message on Senate action sent to the House.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-09-27T15:01:49-04:00", 
+      "action_code": "H14000", 
+      "references": [], 
+      "text": "Received in the House.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-09-27T18:22:10-04:00", 
+      "action_code": "H15000", 
+      "references": [], 
+      "text": "Held at the desk.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-10-23T17:00:15-04:00", 
+      "action_code": "H30300", 
+      "references": [], 
+      "text": "Ms. McSally moved to suspend the rules and pass the bill.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-10-23T17:00:48-04:00", 
+      "action_code": "H30000", 
+      "references": [
+        {
+          "reference": "CR H8056-8057", 
+          "type": "consideration"
+        }
+      ], 
+      "text": "Considered under suspension of the rules.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-10-23T17:00:49-04:00", 
+      "action_code": "H8D000", 
+      "references": [], 
+      "text": "DEBATE - The House proceeded with forty minutes of debate on S. 504.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-10-23T17:06:21-04:00", 
+      "action_code": "H37220", 
+      "references": [], 
+      "text": "At the conclusion of debate, the Yeas and Nays were demanded and ordered. Pursuant to the provisions of clause 8, rule XX, the Chair announced that further proceedings on the motion would be postponed.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-10-23T18:54:49-04:00", 
+      "action_code": "H30000", 
+      "references": [
+        {
+          "reference": "CR H8062-8063", 
+          "type": "consideration"
+        }
+      ], 
+      "text": "Considered as unfinished business.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-10-23T19:02:20-04:00", 
+      "action_code": "H37300", 
+      "how": "roll", 
+      "references": [
+        {
+          "reference": "CR H8056", 
+          "type": "text"
+        }
+      ], 
+      "result": "pass", 
+      "roll": "570", 
+      "status": "PASSED:BILL", 
+      "suspension": true, 
+      "text": "On motion to suspend the rules and pass the bill Agreed to by the Yeas and Nays: (2/3 required): 401 - 2 (Roll no. 570).", 
+      "type": "vote", 
+      "vote_type": "vote2", 
+      "where": "h"
+    }, 
+    {
+      "acted_at": "2017-10-23T19:02:21-04:00", 
+      "action_code": "H38310", 
+      "references": [], 
+      "text": "Motion to reconsider laid on the table Agreed to without objection.", 
+      "type": "action"
+    }, 
+    {
+      "acted_at": "2017-10-26", 
+      "action_code": "E20000", 
+      "references": [], 
+      "text": "Presented to President.", 
+      "type": "topresident"
+    }, 
+    {
+      "acted_at": "2017-11-02", 
+      "action_code": "E30000", 
+      "references": [], 
+      "status": "ENACTED:SIGNED", 
+      "text": "Signed by President.", 
+      "type": "signed"
+    }, 
+    {
+      "acted_at": "2017-11-02", 
+      "action_code": "E40000", 
+      "congress": "115", 
+      "law": "public", 
+      "number": "79", 
+      "references": [], 
+      "text": "Became Public Law No: 115-79.", 
+      "type": "enacted"
+    }
+  ], 
+  "amendments": [
+    {
+      "amendment_id": "samdt1104-115", 
+      "amendment_type": "samdt", 
+      "chamber": "s", 
+      "number": "1104"
+    }
+  ], 
+  "bill_id": "s504-115", 
+  "bill_type": "s", 
+  "by_request": false, 
+  "committee_reports": [
+    "S. Rept. 115-140"
+  ], 
+  "committees": [
+    {
+      "activity": [
+        "reporting", 
+        "markup", 
+        "referral"
+      ], 
+      "committee": "Senate Homeland Security and Governmental Affairs", 
+      "committee_id": "SSGA"
+    }
+  ], 
+  "congress": "115", 
+  "cosponsors": [
+    {
+      "bioguide_id": "D000618", 
+      "district": null, 
+      "name": "Daines, Steve", 
+      "original_cosponsor": true, 
+      "sponsored_at": "2017-03-02", 
+      "state": "MT", 
+      "title": "Sen", 
+      "withdrawn_at": null
+    }, 
+    {
+      "bioguide_id": "G000562", 
+      "district": null, 
+      "name": "Gardner, Cory", 
+      "original_cosponsor": false, 
+      "sponsored_at": "2017-05-08", 
+      "state": "CO", 
+      "title": "Sen", 
+      "withdrawn_at": null
+    }, 
+    {
+      "bioguide_id": "K000367", 
+      "district": null, 
+      "name": "Klobuchar, Amy", 
+      "original_cosponsor": false, 
+      "sponsored_at": "2017-03-28", 
+      "state": "MN", 
+      "title": "Sen", 
+      "withdrawn_at": null
+    }
+  ], 
+  "enacted_as": {
+    "congress": "115", 
+    "law_type": "public", 
+    "number": "79"
+  }, 
+  "history": {
+    "active": true, 
+    "active_at": "2017-08-01", 
+    "awaiting_signature": false, 
+    "enacted": true, 
+    "enacted_at": "2017-11-02", 
+    "house_passage_result": "pass", 
+    "house_passage_result_at": "2017-10-23T19:02:20-04:00", 
+    "senate_passage_result": "pass", 
+    "senate_passage_result_at": "2017-09-26", 
+    "vetoed": false
+  }, 
+  "introduced_at": "2017-03-02", 
+  "number": "504", 
+  "official_title": "A bill to permanently authorize the Asia-Pacific Economic Cooperation Business Travel Card Program.", 
+  "popular_title": null, 
+  "related_bills": [
+    {
+      "bill_id": "hr2805-115", 
+      "identified_by": "House", 
+      "reason": "related", 
+      "type": "bill"
+    }
+  ], 
+  "short_title": "Asia-Pacific Economic Cooperation Business Travel Cards Act of 2017", 
+  "sponsor": {
+    "bioguide_id": "H001042", 
+    "district": null, 
+    "name": "Hirono, Mazie K.", 
+    "state": "HI", 
+    "title": "Sen", 
+    "type": "person"
+  }, 
+  "status": "ENACTED:SIGNED", 
+  "status_at": "2017-11-02", 
+  "subjects": [
+    "Asia", 
+    "Competitiveness, trade promotion, trade deficits", 
+    "Immigration", 
+    "Immigration status and procedures", 
+    "Travel and tourism"
+  ], 
+  "subjects_top_term": "Immigration", 
+  "summary": {
+    "as": "Public Law", 
+    "date": "2017-11-03T03:59:59Z", 
+    "text": "(This measure has not been amended since it was passed by the House on October 23, 2017. The summary of that version is repeated here.)\n\nAsia-Pacific Economic Cooperation Business Travel Cards Act of 2017\n\n (Sec. 2) This bill amends the Homeland Security Act of 2002 to authorize U.S. Customs and Border Protection (CBP) to issue an Asia-Pacific Economic Cooperation Business Travel Card (ABT Card) to an individual who: (1) is a U.S. citizen, (2) has been approved and is in good standing in an existing Department of Homeland Security (DHS) international trusted traveler program, and (3) is engaged in business in the Asia-Pacific region or is a U.S. government official engaged in Asia-Pacific Economic Cooperation business.\n\nThe bill: (1) transfers card program authority from the the Asia-Pacific Economic Cooperation Business Travel Cards Act of 2011 (APECBTC Act) to the Homeland Security Act of 2002; and (2) makes the program, which is scheduled to end on September 30, 2018, permanent.\n\nThe CBP shall: (1) integrate application procedures for, and issuance, renewal, and revocation of, ABT cards with existing DHS international trusted traveler programs; (2) prescribe and collect a fee for card issuance and renewal, and (3) notify Congress if card program expenditures exceed collected amounts.\n\nThe bill establishes in the Treasury an Asia-Pacific Economic Cooperation Business Travel Card Account (Account).\n\n(Sec. 3) Amounts in the travel card account under the APECBTC Act are transferred to the Account and shall be available for expenses incurred with any card, and such Act is repealed. A card issued pursuant to such Act before the date of enactment of this bill shall remain valid until it expires."
+  }, 
+  "titles": [
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "APEC Business Travel Cards Reauthorization Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "APEC Business Travel Cards Reauthorization Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "reported to senate", 
+      "is_for_portion": false, 
+      "title": "APEC Business Travel Cards Reauthorization Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "reported to senate", 
+      "is_for_portion": false, 
+      "title": "APEC Business Travel Cards Reauthorization Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "passed house", 
+      "is_for_portion": false, 
+      "title": "Asia-Pacific Economic Cooperation Business Travel Cards Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "passed senate", 
+      "is_for_portion": false, 
+      "title": "Asia-Pacific Economic Cooperation Business Travel Cards Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "passed senate", 
+      "is_for_portion": false, 
+      "title": "Asia-Pacific Economic Cooperation Business Travel Cards Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "enacted", 
+      "is_for_portion": false, 
+      "title": "Asia-Pacific Economic Cooperation Business Travel Cards Act of 2017", 
+      "type": "short"
+    }, 
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "A bill to permanently authorize the Asia-Pacific Economic Cooperation Business Travel Card Program.", 
+      "type": "official"
+    }, 
+    {
+      "as": null, 
+      "is_for_portion": false, 
+      "title": "Asia-Pacific Economic Cooperation Business Travel Cards Act of 2017", 
+      "type": "display"
+    }
+  ], 
+  "updated_at": "2017-11-24T22:17:59Z", 
+  "url": "https://www.gpo.gov/fdsys/bulkdata/BILLSTATUS/115/s/BILLSTATUS-115s504.xml"
+}

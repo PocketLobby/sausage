@@ -83,7 +83,7 @@ class LegislativeVotes(DB):
     def upsert_bill_votes(self):
         """Insert a record _that there was a vote_ into the db"""
 
-        self.db_cur().execute("""INSERT INTO bill_votes
+        return self.execute("""INSERT INTO bill_votes
             (
                 bill_type
                 , chamber
@@ -102,7 +102,6 @@ class LegislativeVotes(DB):
                 , present_vote_cnt
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (vote_id) DO NOTHING""", self.insert_tuple)
-        return self.conn.commit()
 
     def _injest_json_data_for_vote(self):
         basepath = Configurator().config['congress_data_fs_root']
@@ -253,18 +252,17 @@ class IndividualLegislatorVote(LegislativeVotes):
     def upsert_individual_vote(self, vote_tuple):
         """Saves an individual vote to the database"""
 
-        self.db_cur().execute("""
+        return self.execute("""
                 INSERT INTO votes (vote_id, person_bioguide_id, vote)
                  VALUES(%s, %s, %s)
-                 
+
                  ON CONFLICT (vote_id, person_bioguide_id) DO UPDATE
                  SET (vote) = (EXCLUDED.vote)
                  WHERE votes.vote_id = EXCLUDED.vote_id
                      AND votes.person_bioguide_id = EXCLUDED.person_bioguide_id
              """, vote_tuple)
-        return self.conn.commit()
 
     def _fetch_map_from_db(self):
-        return self.db_cur().fetchall("""
+        return self.fetchrecords("""
                 SELECT lis_id, bioguide_id
                 FROM representatives WHERE lis_id IS NOT NULL""")

@@ -89,8 +89,7 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
 
         with patch.object(ConsVoteTally, 'get_bills_updated_since_last_notification') as mocked_cvt:
             mocked_cvt.return_value = ['hr123', 's123']
-
-        cste.execute()
+            cste.execute()
 
         cste._send_email.assert_not_called()
 
