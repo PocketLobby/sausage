@@ -1,6 +1,6 @@
-import unittest
 import json
-from unittest.mock import MagicMock, patch, mock_open
+import unittest
+from unittest.mock import MagicMock
 
 from bill_updater.tracked_bill import TrackedBill
 
@@ -12,13 +12,12 @@ class TrackedBillsTest(unittest.TestCase):
         self.known_bill = 's504-115'
 
     def test_init(self):
-        "should return a list of bills. TODO: mock the call to the db"
+        """should return a list of bills. TODO: mock the call to the db"""
+
         self.assertTrue(TrackedBill(self.known_bill).bill_id, self.known_bill)
-        # self.assertTrue( self.known_bill in TrackedBills().bills )
 
     def test_get_bill_details(self):
-        "should return dict of bill"
-
+        """should return dict of bill"""
 
         tb = TrackedBill(self.known_bill)
         tb._bill_path = MagicMock(return_value="bill_updater/test/s504.json")
@@ -29,6 +28,7 @@ class TrackedBillsTest(unittest.TestCase):
         self.assertEqual(bill_dict['bill_id'], self.known_bill)
 
     def mock_bill_data(self):
+
         with open('bill_updater/test/s504.json') as json_data:
             data = json.load(json_data)
         return data

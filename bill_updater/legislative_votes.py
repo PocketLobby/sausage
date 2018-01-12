@@ -83,7 +83,8 @@ class LegislativeVotes(DB):
     def upsert_bill_votes(self):
         """Insert a record _that there was a vote_ into the db"""
 
-        return self.execute("""INSERT INTO bill_votes
+        return self.execute("""
+            INSERT INTO bill_votes
             (
                 bill_type
                 , chamber
@@ -166,7 +167,8 @@ class LegislativeVotes(DB):
             EXCEPT
 
             SELECT DISTINCT vote_id
-            FROM bill_votes
+            -- This is legislative votes, named poorly
+            FROM votes
         """
 
         bills = DB().fetch_records(query)
@@ -253,16 +255,16 @@ class IndividualLegislatorVote(LegislativeVotes):
         """Saves an individual vote to the database"""
 
         return self.execute("""
-                INSERT INTO votes (vote_id, person_bioguide_id, vote)
-                 VALUES(%s, %s, %s)
+            INSERT INTO votes (vote_id, person_bioguide_id, vote)
+            VALUES (%s, %s, %s)
 
-                 ON CONFLICT (vote_id, person_bioguide_id) DO UPDATE
-                 SET (vote) = (EXCLUDED.vote)
-                 WHERE votes.vote_id = EXCLUDED.vote_id
-                     AND votes.person_bioguide_id = EXCLUDED.person_bioguide_id
+            ON CONFLICT (vote_id, person_bioguide_id) DO UPDATE
+            SET (vote) = (EXCLUDED.vote)
+            WHERE votes.vote_id = EXCLUDED.vote_id
+                AND votes.person_bioguide_id = EXCLUDED.person_bioguide_id
              """, vote_tuple)
 
     def _fetch_map_from_db(self):
-        return self.fetchrecords("""
+        return self.fetch_records("""
                 SELECT lis_id, bioguide_id
                 FROM representatives WHERE lis_id IS NOT NULL""")

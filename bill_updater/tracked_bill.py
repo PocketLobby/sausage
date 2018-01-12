@@ -1,7 +1,8 @@
 import json
+
+from utilities.bill_helper import BillHelper
 from utilities.configurator import Configurator
 from utilities.db import DB
-from utilities.bill_helper import BillHelper
 
 
 class TrackedBill(DB):
@@ -12,11 +13,6 @@ class TrackedBill(DB):
 
     def __init__(self, bill_id):
         self.bill_id = bill_id
-
-    @property
-    def cur(self):
-        self._cur = self._cur if self._cur else self._get_cur()
-        return self._cur
 
     def get_bill_details(self):
         "returns a dict with the details of the bill in hr123-115 format"
@@ -62,7 +58,7 @@ class TrackedBill(DB):
         """Given a tuple suitable for upserting, send it to the database"""
 
         upsert_tuple = upsert_tuple if upsert_tuple else self.upsert_tuple()
-        self.db_cur().execute("""
+        return self.execute("""
             INSERT INTO bills (
                 bill_id
                 , active
@@ -98,8 +94,6 @@ class TrackedBill(DB):
                 , EXCLUDED.most_recent_senate_vote_id
             )
         """, upsert_tuple)
-
-        return self.conn.commit()
 
     def _vote_styles_and_id(self, data):
         "Given a list of actions, return a tuple of (house_vote_style, house_vote_id, senate_vote_style, senate_vote_id"
@@ -151,8 +145,8 @@ class TrackedBill(DB):
     @classmethod
     def update_all_pl_bills(cls):
         db = DB()
-        db.db_cur().execute("""SELECT DISTINCT(bill_id) FROM bills""")
-        bills = [bills[0] for bills in db.db_cur().fetchall()]
+        query = ("""SELECT DISTINCT(bill_id) FROM bills""")
+        bills = [bills[0] for bills in db.fetch_records(query)]
 
         for bill in bills:
             print("updating %s" % bill)

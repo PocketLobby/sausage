@@ -1,9 +1,10 @@
 import smtplib
-
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from utilities.db import DB
+
 from utilities.configurator import Configurator
+from utilities.db import DB
+
 
 class GenericMailer():
     """A class to set up a basic transactional email configuration"""
@@ -64,11 +65,9 @@ class TallyMail(GenericMailer):
 
     def log_transaction(self):
         db = DB()
-        cur = db.conn.cursor()
-        cur.execute("""INSERT INTO transactional_emails
+        db.execute("""INSERT INTO transactional_emails
         (email_type, to_user_id, to_email, sent_dttm) VALUES
         (%s, %s, %s, NOW())""", ('tally_mail', self.to['id'], self.to['email']))
-        db.conn.commit()
 
 
     def _compose_message(self):

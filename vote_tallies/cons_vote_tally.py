@@ -1,10 +1,11 @@
 import pandas as pd
-from utilities.db import DB
+
 from utilities.bill_helper import BillHelper
+from utilities.db import DB
 from vote_tallies.leg_vote_match import LegVoteMatch
 
 
-class ConsVoteTally():
+class ConsVoteTally(DB):
     """Calculates a vote tally for a specific constituent"""
 
 
@@ -12,7 +13,6 @@ class ConsVoteTally():
     LAST_KNOWN_TRANSACTION_EMAIL_SEND = "2017-11-11"
 
     constituent_id = None
-    conn = DB()
 
     def __init__(self, constituent_id):
         self.constituent_id = constituent_id
@@ -20,7 +20,7 @@ class ConsVoteTally():
     def get_cons_last_notification(self):
         """find the last time we notified the constituent"""
 
-        records = self.conn.fetch_records("""
+        records = self.fetch_records("""
             SELECT MAX(sent_dttm)
             FROM transactional_emails
             WHERE to_user_id = %s
@@ -28,11 +28,29 @@ class ConsVoteTally():
         dttm = records[0]
         return dttm[0] or self.LAST_KNOWN_TRANSACTION_EMAIL_SEND
 
+    def get_bill_id_for_votes_since_last_notification(self):
+        """Find all bills that a user has voted since the last time we notified them"""
+
+        results = self.fetch_records("""
+            SELECT
+              b.bill_id
+              , uv.*
+            FROM user_votes as uv
+              JOIN pocketlobby.public.bills as b on b.id = uv.bill_id
+            WHERE vote_collected_dttm > (
+              SELECT MAX(sent_dttm)
+              FROM pocketlobby.public.transactional_emails
+              WHERE to_user_id = %(constituent_id)s)
+
+              AND constituent_id = %(constituent_id)s""", {'constituent_id' : self.constituent_id})
+
+        return [result[0] for result in results]
+
     def get_bills_updated_since_last_notification(self):
         """Find all bills that have been updated since the last time we sent a vote tally"""
 
         cons_last_noti = self.get_cons_last_notification()
-        results = self.conn.fetch_records("""
+        results = self.fetch_records("""
             SELECT DISTINCT(bill_id) as bill_id
             FROM bills
             WHERE house_activity_dttm > %s
@@ -50,7 +68,10 @@ class ConsVoteTally():
         # about is getting the vote matches for the constituent. This is
         # set up to make three queries where one would be fine.
 
-        vote_matches = self.conn.fetch_records("""
+        bills = self.get_bills_updated_since_last_notification()
+        bills = set(bills + self.get_bill_id_for_votes_since_last_notification())
+
+        vote_matches = self.fetch_records("""
         SELECT
           vcrvm.*
           , initcap(r.type) || '. ' || r.first_name || ' ' || r.last_name AS leg
@@ -65,7 +86,7 @@ class ConsVoteTally():
             FROM vw_cons_reps
             WHERE id = %(constituent_id)s
           )
-        """, {"bills": tuple(self.get_bills_updated_since_last_notification()),
+        """, {"bills": tuple(bills),
               "constituent_id": self.constituent_id,
         })
 
