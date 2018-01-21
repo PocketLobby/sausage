@@ -1,8 +1,10 @@
 import time
+
+from utilities.configurator import Configurator
 from utilities.db import DB
 from vote_tallies.cons_vote_tally import ConsVoteTally
 from vote_tallies.tally_mail import TallyMail
-from utilities.configurator import Configurator
+
 
 class CmdSendTallyEmails:
     """
@@ -23,11 +25,10 @@ class CmdSendTallyEmails:
         """Execute cli command"""
 
         cvt = self._cvt()
-        bills = cvt.get_bills_updated_since_last_notification()
 
         to_address = self.constituent_tuple[1] if not self.cmd_line_args.test else self.TEST_EMAIL_RECIPIENT
 
-        if bills and self.cmd_line_args.email:
+        if cvt.bill_ids_updated_since_last_notification and self.cmd_line_args.email:
             to = {
                 "email": to_address,
                 "id": self.constituent_tuple[0],
@@ -63,7 +64,6 @@ class CmdSendTallyEmails:
         conn = DB()
         klass = klass if klass else CmdSendTallyEmails
 
-        # query = "SELECT * FROM constituents LIMIT 2 OFFSET 4"
         query = "SELECT * FROM constituents"
         constituents = conn.fetch_records(query)
 

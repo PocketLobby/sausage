@@ -28,69 +28,72 @@ class ConsVoteTally(DB):
         dttm = records[0]
         return dttm[0] or self.LAST_KNOWN_TRANSACTION_EMAIL_SEND
 
-    def get_bill_id_for_votes_since_last_notification(self):
-        """Find all bills that a user has voted since the last time we notified them"""
-
-        results = self.fetch_records("""
-            SELECT
-              b.bill_id
-              , uv.*
-            FROM user_votes as uv
-              JOIN pocketlobby.public.bills as b on b.id = uv.bill_id
-            WHERE vote_collected_dttm > (
-              SELECT MAX(sent_dttm)
-              FROM pocketlobby.public.transactional_emails
-              WHERE to_user_id = %(constituent_id)s)
-
-              AND constituent_id = %(constituent_id)s""", {'constituent_id' : self.constituent_id})
-
-        return [result[0] for result in results]
-
-    def get_bills_updated_since_last_notification(self):
-        """Find all bills that have been updated since the last time we sent a vote tally"""
-
-        cons_last_noti = self.get_cons_last_notification()
-        results = self.fetch_records("""
-            SELECT DISTINCT(bill_id) as bill_id
-            FROM bills
-            WHERE house_activity_dttm > %s
-                OR senate_activity_dttm > %s""",
-            (cons_last_noti, cons_last_noti))
-
-        return [result[0] for result in results]
-
     def vote_matches_for_bills(self):
         """Returns a pandas data frame of all votes we've collected for
         constituents and all legislators' matches"""
 
-        # NOTE: this might be golfing, but the above queries could be
-        # written as CTEs in the below query. All this class really cares
-        # about is getting the vote matches for the constituent. This is
-        # set up to make three queries where one would be fine.
-
-        bills = self.get_bills_updated_since_last_notification()
-        bills = set(bills + self.get_bill_id_for_votes_since_last_notification())
-
         vote_matches = self.fetch_records("""
-        SELECT
-          vcrvm.*
-          , initcap(r.type) || '. ' || r.first_name || ' ' || r.last_name AS leg
-        FROM vw_cons_reps_vote_matches AS vcrvm
-          JOIN representatives AS r on r.bioguide_id = vcrvm.bioguide_id
+            SELECT
+              vcrvm.*
+              , initcap(r.type) || '. ' || r.first_name || ' ' || r.last_name AS leg
+            FROM vw_cons_reps_vote_matches AS vcrvm
+              JOIN representatives AS r on r.bioguide_id = vcrvm.bioguide_id
 
-        WHERE bill_id IN %(bills)s
-          AND vcrvm.cons_vote IS NOT NULL
-          AND vcrvm.constituent_id = %(constituent_id)s
-          AND vcrvm.bioguide_id IN (
-            SELECT bioguide_id
-            FROM vw_cons_reps
-            WHERE id = %(constituent_id)s
+            WHERE bill_id IN %(bills)s
+              -- This is where congress has voted but the constituent has not
+              AND vcrvm.cons_vote IS NOT NULL
+              AND vcrvm.constituent_id = %(constituent_id)s
+              AND vcrvm.bioguide_id IN (
+                SELECT bioguide_id
+                FROM vw_cons_reps
+                WHERE id = %(constituent_id)s
           )
-        """, {"bills": tuple(bills),
+        """, {"bills": tuple(self.bill_ids_updated_since_last_notification()),
               "constituent_id": self.constituent_id,
         })
 
         return [LegVoteMatch(vm) for vm in vote_matches]
+
+    def bill_ids_updated_since_last_notification(self):
+        """
+        Returns a set of bill ids relevant for sending tally emails
+
+
+        Looks for a bill that a constituent has voted since his/her last tally
+        email. Additionally, if a bill has been updated by either legislative
+        chamber && the bill has been voted on by the constituent, show that too.
+        """
+
+        bill_ids = self.fetch_records("""
+            SELECT
+              DISTINCT(bill_id) as bill_id
+            FROM bills
+            -- TODO: solve for NULL
+            WHERE GREATEST(house_activity_dttm, senate_activity_dttm)::DATE > %(last_contact_date)s
+              -- Don't bother consituent with bills that congress has voted
+              -- but the user abstained.
+              AND bill_id NOT IN (
+                SELECT
+                  DISTINCT(b.bill_id)
+                FROM user_votes AS uv
+                  JOIN bills as b ON b.id = uv.bill_id
+                WHERE uv.vote = 'abstain'
+                  AND uv.constituent_id = %(constituent_id)s
+              )
+
+            UNION
+
+            SELECT
+              DISTINCT( b.bill_id ) as bill_id
+            FROM user_votes AS uv
+              JOIN bills as b on b.id = uv.bill_id
+            WHERE uv.constituent_id = %(constituent_id)s
+              AND uv.vote_collected_dttm::DATE > %(last_contact_date)s
+              
+            """, {'constituent_id': self.constituent_id,
+                  'last_contact_date': self.get_cons_last_notification()})
+
+        return [bill_id[0] for bill_id in bill_ids]
 
     def map_matches_to_df(self):
         vote_matches = self.vote_matches_for_bills()

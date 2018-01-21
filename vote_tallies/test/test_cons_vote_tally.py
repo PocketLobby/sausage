@@ -42,7 +42,7 @@ class ConsVoteTallyTest(unittest.TestCase):
         cvt.fetch_records = MagicMock(return_value=mocked_bills)
 
         self.assertEqual([bills[0] for bills in mocked_bills],
-                         cvt.get_bills_updated_since_last_notification())
+                         cvt.bill_ids_updated_since_last_notification())
 
         # when no bills have been updated since
         mocked_bills = []
@@ -50,25 +50,7 @@ class ConsVoteTallyTest(unittest.TestCase):
         cvt.get_cons_last_notification = MagicMock(return_value=(self.arbitrary_dttm,))
         cvt.fetch_records = MagicMock(return_value=mocked_bills)
 
-        self.assertEqual([], cvt.get_bills_updated_since_last_notification())
-
-    def test_get_bills_updated_since_last_consituent_vote(self):
-        mocked_bills = [('hr123-115',)]
-
-        cvt = self.make_cvt()
-        cvt.get_cons_last_notification = MagicMock(return_value=(self.arbitrary_dttm,))
-        cvt.fetch_records = MagicMock(return_value=mocked_bills)
-
-        self.assertEqual([bills[0] for bills in mocked_bills],
-                         cvt.get_bill_id_for_votes_since_last_notification())
-
-        # when no bills have been updated since
-        mocked_bills = []
-        cvt = self.make_cvt()
-        cvt.get_cons_last_notification = MagicMock(return_value=(self.arbitrary_dttm,))
-        cvt.fetch_records = MagicMock(return_value=mocked_bills)
-
-        self.assertEqual([], cvt.get_bill_id_for_votes_since_last_notification())
+        self.assertEqual([], cvt.bill_ids_updated_since_last_notification())
 
     @staticmethod
     def db_return_list():
@@ -110,16 +92,11 @@ class ConsVoteTallyTest(unittest.TestCase):
         ret = cvt.map_matches_to_df()
         self.assertTrue(ret.empty)
 
-
     def test_vote_matches_for_bills(self):
         cvt = self.make_cvt()
 
         cvt.fetch_records = MagicMock(return_value=self.db_return_list())
-        congress_bills = [bill[2] for bill in self.db_return_list()[0:3]]
-        user_voted_bills = [bill[2] for bill in self.db_return_list()[4:6]]
-
-        cvt.get_bills_updated_since_last_notification = MagicMock(return_value=congress_bills)
-        cvt.get_bill_id_for_votes_since_last_notification = MagicMock(return_value=user_voted_bills)
+        cvt.bill_ids_updated_since_last_notification = MagicMock(return_value=[])
 
         matches = cvt.vote_matches_for_bills()
         i = 0
@@ -130,5 +107,25 @@ class ConsVoteTallyTest(unittest.TestCase):
         # voted by constituent iff the constituent has voted on the bill after
         # a vote
 
-        cvt.get_bills_updated_since_last_notification.assert_called_once()
-        cvt.get_bill_id_for_votes_since_last_notification.assert_called_once()
+        cvt.bill_ids_updated_since_last_notification.assert_called_once()
+
+    @property
+    def results_of_bill_ids_updated_since_last_notification(self):
+        return [('hr123', None), ('s234', None)]
+
+    def test_bill_ids_updated_since_last_notification(self):
+
+        # before the user has voted even once or they have not voted since the last notification we sent him/her
+        cvt = self.make_cvt()
+        cvt.fetch_records = MagicMock(return_value=[])
+        cvt.get_cons_last_notification = MagicMock(return_value=cvt.LAST_KNOWN_TRANSACTION_EMAIL_SEND)
+
+        self.assertEqual([], cvt.bill_ids_updated_since_last_notification())
+
+        # when the user has voted since the last notification
+        cvt = self.make_cvt()
+        cvt.fetch_records = MagicMock(return_value=self.results_of_bill_ids_updated_since_last_notification)
+        cvt.get_cons_last_notification = MagicMock(return_value=cvt.LAST_KNOWN_TRANSACTION_EMAIL_SEND)
+
+        bill_ids = [bill[0] for bill in self.results_of_bill_ids_updated_since_last_notification]
+        self.assertEqual(bill_ids, cvt.bill_ids_updated_since_last_notification())

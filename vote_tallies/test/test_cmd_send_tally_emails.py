@@ -1,9 +1,11 @@
 import unittest
 from unittest.mock import MagicMock, patch
+
+from utilities.db import DB
 from vote_tallies.cmd_send_tally_emails import CmdSendTallyEmails
 from vote_tallies.cons_vote_tally import ConsVoteTally
-from utilities.db import DB
 from vote_tallies.tally_mail import TallyMail
+
 
 class CmdSendTallyEmailsTest(unittest.TestCase):
 
@@ -41,6 +43,12 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
 
         return fakeargs
 
+    def fake_cvt(self):
+        fake_cvt = MagicMock(spec=ConsVoteTally)
+        fake_cvt.matches_to_html.return_value = self.email_string
+        fake_cvt.bill_ids_updated_since_last_notification.return_value = ['hr123', 's123']
+        return fake_cvt
+
     def simple_obj(self, cons_tuple=None, args=None):
         """Instantiate the class under test more simply"""
 
@@ -76,7 +84,7 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
 
         cste._send_email = MagicMock()
 
-        with patch.object(ConsVoteTally, 'get_bills_updated_since_last_notification') as mocked_cvt:
+        with patch.object(ConsVoteTally, 'bill_ids_updated_since_last_notification') as mocked_cvt:
             mocked_cvt.return_value = []
             cste.execute()
 
@@ -87,16 +95,14 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
 
         cste._send_email = MagicMock()
 
-        with patch.object(ConsVoteTally, 'get_bills_updated_since_last_notification') as mocked_cvt:
+        with patch.object(ConsVoteTally, 'bill_ids_updated_since_last_notification') as mocked_cvt:
             mocked_cvt.return_value = ['hr123', 's123']
             cste.execute()
 
         cste._send_email.assert_not_called()
 
     def test_execute_with_bills_no_test_email(self):
-        fake_cvt = MagicMock(spec=ConsVoteTally)
-        fake_cvt.matches_to_html.return_value = self.email_string
-        fake_cvt.get_bills_updated_since_last_notification.return_value = ['hr123', 's123']
+        fake_cvt = self.fake_cvt()
 
         cste = self.simple_obj(args=self.args_no_test_email())
         cste._cvt = MagicMock(return_value=fake_cvt)
@@ -108,9 +114,7 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
 
     # this shouldn't really be a use case, but it's a permutation
     def test_execute_with_bills_test_no_email(self):
-        fake_cvt = MagicMock(spec=ConsVoteTally)
-        fake_cvt.matches_to_html.return_value = self.email_string
-        fake_cvt.get_bills_updated_since_last_notification.return_value = ['hr123', 's123']
+        fake_cvt = self.fake_cvt()
 
         cste = self.simple_obj(args=self.args_test_no_email())
         cste._cvt = MagicMock(return_value=fake_cvt)
@@ -120,9 +124,7 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
         cste._send_email.assert_not_called()
 
     def test_execute_with_bills_test_email(self):
-        fake_cvt = MagicMock(spec=ConsVoteTally)
-        fake_cvt.matches_to_html.return_value = self.email_string
-        fake_cvt.get_bills_updated_since_last_notification.return_value = ['hr123', 's123']
+        fake_cvt = self.fake_cvt()
 
         cste = self.simple_obj(args=self.args_test_email())
         cste._cvt = MagicMock(return_value=fake_cvt)
@@ -130,10 +132,10 @@ class CmdSendTallyEmailsTest(unittest.TestCase):
 
         cste.execute()
 
-        dict = self.cons_as_send_email_to(0)
-        dict["email"] = cste.TEST_EMAIL_RECIPIENT
+        _dict = self.cons_as_send_email_to(0)
+        _dict["email"] = cste.TEST_EMAIL_RECIPIENT
 
-        cste._send_email.assert_called_once_with(dict, self.email_string)
+        cste._send_email.assert_called_once_with(_dict, self.email_string)
 
     def test_send_email_when_content_exists(self):
         cste = self.simple_obj()
