@@ -4,7 +4,7 @@
 
 ## Getting started
 
-`source activate pocketlobby_sausage`
+`source activate pocketlobby`
 
 ## Vote Tallies
 
@@ -39,6 +39,10 @@ parameters in the configuration for your development environment.
 
 In a console in the project root directory, run:
 `flyway migrate -configFile=pocketlobby-fw.conf`
+
+## Sources of Data:
+
+[Legislator Information](https://github.com/unitedstates/congress-legislators)
 
 ## TODO:
 

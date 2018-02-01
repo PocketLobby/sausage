@@ -1,0 +1,20 @@
+tables:
+  transactional_emails:
+    last_constituent_notification:
+      description: Returns the most recent datetime that a constituent was sent a transactional email
+      params: constituent_id
+      sql: >
+        SELECT MAX(sent_dttm)
+        FROM transactional_emails
+        WHERE to_user_id = %s
+
+    test_fixtures:
+      - email_type: tally_mail
+        to_user_id: 123
+        to_email: fake@example.com
+        sent_dttm: 2017-12-31 23:23:59
+
+      - email_type: tally_mail
+        to_user_id: 123
+        to_email: fake@example.com
+        sent_dttm: 2017-01-01 12:01:01
