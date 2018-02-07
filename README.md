@@ -18,7 +18,11 @@ constituent was sent a notification.
 
 To send vote tallys to constituents, run this command:
 
-` ENV=production ./send_tally_emails_for_user.py --email`
+> Measure twice, cut once -people that aren't frustrated, since forever
+
+`ENV=production ./send_tally_emails_for_user.py --email --test`
+
+`ENV=production ./send_tally_emails_for_user.py --email`
 
 ## Legislative Bill Votes
 

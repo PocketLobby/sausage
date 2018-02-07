@@ -1,18 +1,24 @@
 DROP VIEW vw_rep_vote_summaries CASCADE ; -- ALSO DROPS vw_cons_reps_vote_matches which is why it is here
+
+-- A record of how a legislator voted on a particular bill
+-- some GOTCHAs here are to be careful that a legislator was actually serving during the time that a voice vote or
+-- unanimous consent vote was cast. It is the position of Pocket Lobby that if a legislator was serving during a
+-- voice vote or unanimous consent, then they implicitly agree with the outcome of that chamber at that time.
+
 CREATE VIEW vw_rep_vote_summaries AS
-SELECT b.bill_id,
-    b.house_passage_type,
-    v.vote,
-    reps.bioguide_id,
-    reps.first_name,
-    reps.last_name,
-    reps.type,
-    reps.state,
-    reps.district
-   FROM bills b
-     JOIN votes v ON v.vote_id::text = b.most_recent_house_vote_id::text
-     JOIN representatives reps ON v.person_bioguide_id::text = reps.bioguide_id
-  WHERE b.most_recent_house_vote_id IS NOT NULL AND b.house_passage_type = 'rc'::passage_type
+  SELECT b.bill_id,
+      b.house_passage_type,
+      v.vote,
+      reps.bioguide_id,
+      reps.first_name,
+      reps.last_name,
+      reps.type,
+      reps.state,
+      reps.district
+     FROM bills b
+       JOIN votes v ON v.vote_id = b.most_recent_house_vote_id
+       JOIN representatives reps ON v.person_bioguide_id = reps.bioguide_id
+    WHERE b.most_recent_house_vote_id IS NOT NULL AND b.house_passage_type = 'rc'::passage_type
 UNION
  SELECT b.bill_id,
     b.senate_passage_type AS house_passage_type,
@@ -24,8 +30,8 @@ UNION
     reps.state,
     reps.district
    FROM bills b
-     JOIN votes v ON v.vote_id::text = b.most_recent_senate_vote_id::text
-     JOIN representatives reps ON v.person_bioguide_id::text = reps.bioguide_id
+     JOIN votes v ON v.vote_id = b.most_recent_senate_vote_id
+     JOIN representatives reps ON v.person_bioguide_id = reps.bioguide_id
   WHERE b.most_recent_senate_vote_id IS NOT NULL AND b.senate_passage_type = 'rc'::passage_type
 UNION
  SELECT b.bill_id,
@@ -38,8 +44,9 @@ UNION
     reps.state,
     reps.district
    FROM bills b
-     JOIN representatives reps ON reps.type = 'rep'::text
+     JOIN representatives reps ON reps.type = 'rep'
   WHERE b.house_passage_type = ANY (ARRAY['vv'::passage_type, 'uc'::passage_type])
+        AND b.house_activity_dttm BETWEEN reps.chamber_begin_dt AND reps.chamber_end_dt
 UNION
  SELECT b.bill_id,
     b.senate_passage_type AS house_passage_type,
@@ -51,12 +58,14 @@ UNION
     reps.state,
     -1 AS district
    FROM bills b
-     JOIN representatives reps ON reps.type = 'sen'::text
-  WHERE b.senate_passage_type = ANY (ARRAY['vv'::passage_type, 'uc'::passage_type]);
+     JOIN representatives reps ON reps.type = 'sen'
+  WHERE b.senate_passage_type = ANY (ARRAY['vv'::passage_type, 'uc'::passage_type])
+        AND b.senate_activity_dttm BETWEEN reps.chamber_begin_dt AND reps.chamber_end_dt
 ;
 -- Matches every constituent vote with every legislator vote
+-- Legislators who were not serving at the time the chamber voted should be excluded
 -- This will get out of hand when we have lots of constituents (It will scale
--- by N * 546 representatives * Y votes)
+-- by N * M representatives * Y votes)
 -- should be unique on bill_id, legislator and constituent
 CREATE VIEW vw_cons_reps_vote_matches AS
   WITH cons_with_legs AS (
@@ -64,6 +73,8 @@ CREATE VIEW vw_cons_reps_vote_matches AS
         cons.id
         , representatives.bioguide_id
         , representatives.type
+        , representatives.chamber_begin_dt
+        , representatives.chamber_end_dt
       FROM constituents as cons
         JOIN representatives ON TRUE
   )
@@ -77,6 +88,24 @@ CREATE VIEW vw_cons_reps_vote_matches AS
     , cv.vote = vb.vote as cons_leg_vote_match_bool
   FROM cons_with_legs AS cwl
     JOIN bills AS b ON TRUE
-    LEFT JOIN vw_rep_vote_summaries AS vb ON vb.bioguide_id = cwl.bioguide_id AND vb.bill_id = b.bill_id
+    LEFT JOIN vw_rep_vote_summaries AS vb ON vb.bioguide_id = cwl.bioguide_id
+      AND vb.bill_id = b.bill_id
     LEFT JOIN user_votes AS cv ON cv.constituent_id = cwl.id AND cv.bill_id = b.id
+  WHERE
+    -- SELECT THE MEMBERS OF THE CHAMBER THAT WERE SERVING AT THE TIME OF THE CHAMBER VOTE
+    CASE
+      -- There's a bill that is in the db but neither chamber has voted
+      WHEN b.house_activity_dttm IS NULL AND b.senate_activity_dttm IS NULL THEN FALSE
+      -- The house has voted but not the senate
+      WHEN b.senate_activity_dttm IS NULL THEN
+        b.house_activity_dttm BETWEEN cwl.chamber_begin_dt AND cwl.chamber_end_dt
+      -- The senate has voted but not the house
+      WHEN b.house_activity_dttm IS NULL THEN
+        b.senate_activity_dttm BETWEEN cwl.chamber_begin_dt AND cwl.chamber_end_dt
+      -- The house AND senate have voted ...
+      -- and the legislator is a representative
+      WHEN cwl.type = 'rep' THEN b.house_activity_dttm BETWEEN cwl.chamber_begin_dt AND cwl.chamber_end_dt
+      -- and the legislator is a senator
+      ELSE b.senate_activity_dttm BETWEEN cwl.chamber_begin_dt AND cwl.chamber_end_dt
+    END
 ;
