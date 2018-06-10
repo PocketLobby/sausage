@@ -22,7 +22,7 @@ class ConstituentVoteConverter:
         # NOTE: we _should_ have received a unix timestamp with microseconds.
         # In case we didn't, let's not tear our hair out trying to find this
         # bug later.
-        if len(unix_timestamp) == 13:
+        if len(str(unix_timestamp)) == 13:
             to_convert = int(unix_timestamp)/1000
         else:
             to_convert = int(unix_timestamp)
@@ -38,13 +38,18 @@ class ConstituentVoteConverter:
         :param user_token: a character hash representing a user to other systems
         """
 
-        user_id, user_token = DB().fetch_one("""
-            SELECT
-                id
-                , user_token
-                FROM constituents
-                WHERE user_token = %s
-            """, (user_token, ))
+        # NOTE: this will throw an exception further down. Let the caller handle
+        # the very non-exceptional case where a user is not found
+        try:
+            user_id, user_token = DB().fetch_one("""
+                SELECT
+                    id
+                    , user_token
+                    FROM constituents
+                    WHERE user_token = %s
+                """, (user_token, ))
+        except TypeError as e:
+            user_id = None
 
         return user_id
 
@@ -127,8 +132,13 @@ class ConstituentVoteCreator:
         self._db_conn = DB()
 
     def commit_user_vote(self):
-        commit = self._db_conn.execute(
-            """
+        """
+        Upserts user vote to the database.
+
+        :return: id (INT) if tuple has ever been committed to the db. None if not
+        """
+        insert_tuple = (self.constituent_id, self.bill_id_int, self.vote, self.dttm)
+        self._db_conn.execute("""
             INSERT INTO user_votes
             (constituent_id, bill_id, vote, vote_collected_dttm)
             VALUES (%s, %s, %s, %s)
@@ -138,7 +148,16 @@ class ConstituentVoteCreator:
                     (EXCLUDED.vote, EXCLUDED.vote_collected_dttm)
                 WHERE user_votes.constituent_id = EXCLUDED.constituent_id
                 AND user_votes.bill_id = EXCLUDED.bill_id
-            """, (self.constituent_id, self.bill_id_int, self.vote, self.dttm)
-        )
-        return commit
+            """, insert_tuple)
+
+        vote_record_id = self._db_conn.fetch_one("""
+            SELECT
+            id
+            FROM user_votes
+            WHERE constituent_id = %s
+              AND bill_id = %s
+              AND vote = %s
+              AND vote_collected_dttm = %s
+        """, insert_tuple)
+        return vote_record_id if vote_record_id else None
 

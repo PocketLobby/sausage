@@ -1,4 +1,3 @@
-import datetime
 import unittest
 import pytest
 from unittest.mock import MagicMock, patch
@@ -34,10 +33,29 @@ class ConsitutentVoteCreatorTest(unittest.TestCase):
 
         cvc, _ = self.obj_creator()
 
-        with patch('utilities.db.DB.execute') as db:
-            db.return_value = True
-            assert cvc.commit_user_vote() is True
-            db.assert_called_once()
+        # WHEN commit succeeds
+        with patch('utilities.db.DB.execute') as exe:
+            exe.return_value = None
+
+            with patch("utilities.db.DB.fetch_one") as fo:
+                fo.return_value = (123,)
+
+                assert cvc.commit_user_vote() == (123,)
+
+                exe.assert_called_once()
+                fo.assert_called_once()
+
+        # # WHEN commit fails
+        with patch('utilities.db.DB.execute') as exe:
+            exe.return_value = None
+
+            with patch("utilities.db.DB.fetch_one") as fo:
+                fo.return_value = None
+
+                assert cvc.commit_user_vote() is None
+
+                exe.assert_called_once()
+                fo.assert_called_once()
 
 
 class ConstituentVoteConverterTest(unittest.TestCase):
@@ -100,4 +118,10 @@ class ConstituentVoteConverterTest(unittest.TestCase):
             db.return_value = (123,'abc123')
 
             assert self.subject.user_token_converter('abc123') == 123
+            db.assert_called_once()
+
+        with patch('utilities.db.DB.fetch_one') as db:
+            db.return_value = None
+
+            assert self.subject.user_token_converter('abc123') is None
             db.assert_called_once()
