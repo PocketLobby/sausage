@@ -10,13 +10,13 @@ class GenericMailer():
     """A class to set up a basic transactional email configuration"""
 
     config = Configurator().config
-    email_from = "Pocket Lobby <email@pocketlobby.org>"
+    email_from = "Pocket Lobby <email@trxn.pocketlobby.org>"
     smtp_host = config['transactional_smtp_host']
     smtp_username = config['transactional_smtp_user_name']
     smtp_password = config['transactional_smtp_password']
 
     def _connect_to_smtp(self):
-        s = smtplib.SMTP_SSL(self.smtp_host)
+        s = smtplib.SMTP(self.smtp_host, port=587)
         s.set_debuglevel(True) # debug
         s.login(self.smtp_username, self.smtp_password)
         return s
@@ -44,6 +44,7 @@ class TallyMail(GenericMailer):
         self.to = to
         if test:
             self.to["email"] = "bryce@bridgetownint.com"
+            # self.to["email"] = "email@pocketlobby.org"
             self.to["id"] = -99
 
         if subject:

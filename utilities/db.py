@@ -47,3 +47,11 @@ class DB:
 
         return records
 
+    def fetch_one(self, query, subs = ()):
+
+        with self.conn as db:
+            with db.cursor() as curs:
+                curs.execute(query, subs)
+                record = curs.fetchone()
+
+        return record
