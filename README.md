@@ -6,6 +6,17 @@
 
 `source activate pocketlobby_sausage`
 
+## New Constituents
+
+New users will join the mailing list from time to time during this alpha development period. For now, they need
+a unique token to more anonymously log their opinions on votes. When a new user is added to the list, run the following
+to create, and store, a unique token to their email address in MailChimp:
+
+```bash
+docker run -it --rm --name sausage -v $(pwd):/opt/project sausage /bin/bash
+python -m utilities.new_user_tokenizer utilities/new_user_tokenizer.py
+```
+
 ## Vote Tallies
 
 At the conclusion of a voting session, we compare the constituent's
@@ -16,9 +27,11 @@ Any new votes that either a constituent or a legislator provides are included as
 part of the tally email if the vote has been updated since the last time the
 constituent was sent a notification.
 
-To send vote tallys to constituents, run this command:
+To send vote tallies to constituents, first refresh sausage's records of votes:
 
-` ENV=production ./send_tally_emails_for_user.py --email`
+`load_legislator_votes.py`
+
+`python -u ./send_tally_emails_for_user.py --email --test`
 
 ## Legislative Bill Votes
 
@@ -42,4 +55,4 @@ In a console in the project root directory, run:
 
 ## TODO:
 
-+ [ ] hr4300 passed in an unusal way. Support that method of passage
++ [ ] hr4300 passed in an unusual way. Support that method of passage

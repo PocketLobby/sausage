@@ -3,6 +3,8 @@ test_transactional_email_address_to = bryce@bridgtownint.com
 transactional_smtp_host = send_email.com
 transactional_smtp_user_name = uname
 transactional_smtp_password = pass
+mailchimp_api_token=longalphanumstring-us16
+mailchimp_leg_update_list_id=shortalphanumstring
 
 [development]
 
