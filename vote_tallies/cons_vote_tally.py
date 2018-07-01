@@ -70,7 +70,7 @@ class ConsVoteTally(DB):
             FROM bills
             -- TODO: solve for NULL
             WHERE GREATEST(house_activity_dttm, senate_activity_dttm)::DATE > %(last_contact_date)s
-              -- Don't bother consituent with bills that congress has voted
+              -- Don't bother constituent with bills that congress has voted
               -- but the user abstained.
               AND bill_id NOT IN (
                 SELECT
@@ -88,10 +88,11 @@ class ConsVoteTally(DB):
             FROM user_votes AS uv
               JOIN bills as b on b.id = uv.bill_id
             WHERE uv.constituent_id = %(constituent_id)s
-              AND uv.vote_collected_dttm::DATE > %(last_contact_date)s
+              AND uv.vote_collected_dttm::DATE >= %(last_contact_date)s
               
             """, {'constituent_id': self.constituent_id,
-                  'last_contact_date': self.get_cons_last_notification()})
+                  'last_contact_date': '2018-03-20', #self.get_cons_last_notification()
+                  })
 
         return [bill_id[0] for bill_id in bill_ids]
 

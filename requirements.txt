@@ -1,4 +1,5 @@
 attrs==17.3.0
+boto3==1.7.35
 beautifulsoup4==4.6.0
 bleach==1.5.0
 certifi==2016.2.28
