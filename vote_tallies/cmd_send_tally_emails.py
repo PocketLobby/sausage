@@ -1,5 +1,3 @@
-import time
-
 from utilities.configurator import Configurator
 from utilities.db import DB
 from vote_tallies.cons_vote_tally import ConsVoteTally
@@ -44,9 +42,9 @@ class CmdSendTallyEmails:
 
         return ConsVoteTally(self.constituent_tuple[0])
 
-    def _send_email(self, to, email_content):
-        if email_content:
-            mailer = TallyMail(to, email_content, email_content, test=self.cmd_line_args.test)
+    def _send_email(self, to, tally_table_html):
+        if tally_table_html:
+            mailer = TallyMail(to, tally_table_html, test=self.cmd_line_args.test)
             print(mailer.send())
 
 
