@@ -16,3 +16,4 @@ db_db   = pocketlobby_dev
 congress_data_fs_root = /media/brycemcd/bkp/congress/congress/data/
 
 [production]
+spark_post_api_key=api-key
