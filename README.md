@@ -6,6 +6,9 @@
 
 `source activate pocketlobby_sausage`
 
+We'd love your help! Be sure to see our [code of conduct](docs/code-of-conduct.md) and
+[contributor guidelines](docs/CONTRIBUTING.md) before submitting code for this project.
+
 ## New Constituents
 
 New users will join the mailing list from time to time during this alpha development period. For now, they need
@@ -29,7 +32,11 @@ constituent was sent a notification.
 
 To send vote tallies to constituents, first refresh sausage's records of votes:
 
-`load_legislator_votes.py`
+
+```bash
+# NOTE: docker-compose this
+docker run -it --rm --name sausage -v $(pwd):/opt/project --env-file=prod_tally_mail.env -v /home/brycemcd/Sites/congress/data/:/var/congress/data/ sausage python load_legislator_votes.py
+```
 
 `python -u ./send_tally_emails_for_user.py --email --test`
 
