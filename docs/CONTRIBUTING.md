@@ -14,8 +14,7 @@ Here are some important resources:
 
 ## Summary of Workflow
 
-Trello is our roadmap. If you're looking for the next best thing to work on, pick up a user story (Trello card) off the
-top of the TODO list.
+Trello is our roadmap. The cards in the TODO list are sorted by priority. When choosing the next story to work on, pick from the top of the TODO list.
 
 Make frequent commits and submit a WIP PR when you have the approach that you've developed figured out. The code doesn't
 have to be production ready. We like to get feedback early and often and the team knows that WIP PRs aren't perfect.
