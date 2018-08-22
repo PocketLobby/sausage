@@ -14,7 +14,6 @@ class CmdSendTallyEmails:
     cmd_line_args = None
     constituent_tuple = ()
 
-
     def __init__(self, constituent_tuple, cmd_line_args):
         self.cmd_line_args = cmd_line_args
         self.constituent_tuple = constituent_tuple
@@ -46,7 +45,6 @@ class CmdSendTallyEmails:
         if tally_table_html:
             mailer = TallyMail(to, tally_table_html, test=self.cmd_line_args.test)
             print(mailer.send())
-
 
     @classmethod
     def send_tally_emails(cls, args, klass=None):
