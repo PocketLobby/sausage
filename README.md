@@ -16,8 +16,28 @@ a unique token to more anonymously log their opinions on votes. When a new user 
 to create, and store, a unique token to their email address in MailChimp:
 
 ```bash
-docker run -it --rm --name sausage -v $(pwd):/opt/project sausage /bin/bash
-python -m utilities.new_user_tokenizer utilities/new_user_tokenizer.py
+docker-compose run --rm cron_user_tokenization
+```
+
+## Legislative Bill Votes
+
+Update vote records in the database by calling
+
+```bash
+docker-compose run --rm cron_load_legislator_votes
+```
+
+This will examine the votes contained in the `bills` table, create vote records
+and then create records for individual legislators' votes.
+
+## Bill Categories
+
+Bill categories are subjects of bills. This app cares about them insofar as it
+helps us develop a rudimentary preference ranking. After updating Bill Votes by
+legislators, populate the bill's categories:
+
+```bash
+docker-compose run --rm cron_populate_bill_categories
 ```
 
 ## Vote Tallies
@@ -30,24 +50,21 @@ Any new votes that either a constituent or a legislator provides are included as
 part of the tally email if the vote has been updated since the last time the
 constituent was sent a notification.
 
-To send vote tallies to constituents, first refresh sausage's records of votes:
+To send vote tallies to constituents, refresh sausage's records of constituent
+votes (NOTE: do this after parsing the Google Form):
 
 
 ```bash
-# NOTE: docker-compose this
-docker run -it --rm --name sausage -v $(pwd):/opt/project --env-file=prod_tally_mail.env -v /home/brycemcd/Sites/congress/data/:/var/congress/data/ sausage python load_legislator_votes.py
+docker-compose run --rm  daemon_tally_queue_import
 ```
 
-`python -u ./send_tally_emails_for_user.py --email --test`
+Send the emails using the `--test` flag first! Double check the results.
 
-## Legislative Bill Votes
+Then, to actually send the emails:
 
-Update vote records in the database by calling
-
-`ENV=production ./load_legislator_votes.py`
-
-This will examine the votes contained in the `bills` table, create vote records
-and then create records for individual legislators' votes.
+```bash
+docker-compose run --rm cron_send_tally_mails
+```
 
 ## Database
 

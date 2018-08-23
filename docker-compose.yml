@@ -1,0 +1,39 @@
+version: '3'
+services:
+  cron_user_tokenization:
+    image: sausage
+    command: python -u -m utilities.new_user_tokenizer utilities/new_user_tokenizer.py
+    env_file: secrets
+    volumes:
+      - ./:/opt/project
+
+  cron_populate_bill_categories:
+    image: sausage
+    command: python -u -m bill_updater.bill_categories bill_updater/bill_categories.py
+    env_file: secrets
+    volumes:
+    - ./:/opt/project
+    - /home/brycemcd/Sites/congress/data:/var/congress/data:ro
+
+  cron_load_legislator_votes:
+    image: pocketlobby/sausage
+    command: python -u load_legislator_votes.py
+    env_file: secrets
+    volumes:
+    - ./:/opt/project
+    - /home/brycemcd/Sites/congress/data:/var/congress/data:ro
+
+  cron_send_tally_mails:
+    image: pocketlobby/sausage
+    command: python -u send_tally_emails_for_user.py --email --test
+    env_file: secrets
+    volumes:
+    - ./:/opt/project
+
+  daemon_tally_queue_import:
+    image: sausage
+    command: python -u -m vote_tallies.vote_queue_consumer vote_tallies/vote_queue_consumer.py
+    env_file: secrets
+    volumes:
+    - ./:/opt/project
+    - /home/brycemcd/Sites/congress/data:/var/congress/data:ro
