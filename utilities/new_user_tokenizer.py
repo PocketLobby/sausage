@@ -2,11 +2,15 @@
 When a user is added to the system, they are added via Mailchimp (Constituent
 _will_ eventually handle all this). Poll MC and add user tokens as new users
 are added.
+
+Run this with `python -m utilities.new_user_tokenizer utilities/new_user_tokenizer.py`
 """
 
-import string
 import random
+import string
+
 from mailchimp3 import MailChimp
+
 from utilities.configurator import Configurator
 
 config = Configurator().config
@@ -14,6 +18,7 @@ config = Configurator().config
 PL_LIST_ID = config['mailchimp_leg_update_list_id']
 
 MC_CLIENT = MailChimp(mc_api=config['mailchimp_api_token'])
+
 
 # FIXME: won't scale, but we don't need it to right now. 100 users is our goal
 # for the end of 2018
@@ -30,6 +35,7 @@ def get_all_members():
     assert mems_api_response['total_items'] < 250
 
     return mems_api_response
+
 
 def all_tokens(mems):
     """
@@ -48,7 +54,7 @@ def generate_token():
     :return: String:
     """
 
-    rando = lambda : ''.join(random.choice(string.ascii_letters) for _ in range(5))
+    rando = lambda: ''.join(random.choice(string.ascii_letters) for _ in range(5))
     return rando() + '-' + rando()
 
 

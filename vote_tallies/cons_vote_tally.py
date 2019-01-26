@@ -91,7 +91,7 @@ class ConsVoteTally(DB):
               AND uv.vote_collected_dttm::DATE >= %(last_contact_date)s
               
             """, {'constituent_id': self.constituent_id,
-                  'last_contact_date': '2018-03-20', #self.get_cons_last_notification()
+                  'last_contact_date': '2018-11-14', # self.get_cons_last_notification()
                   })
 
         return [bill_id[0] for bill_id in bill_ids]

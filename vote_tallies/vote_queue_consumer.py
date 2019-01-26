@@ -28,37 +28,50 @@ def get_messages_from_queue(fx):
 def process_message(msg, processor_klass=ConstituentVoteCreator):
     """
     process SQS messages. Messages processing functions are presumed to be idempotent
-
     """
 
     logging.info(msg.body)
     votes = json.loads(msg.body)
 
-    ts = votes['timestamp']
     ut = votes['user_token']
 
     successful_commits = 0
 
-    for bill_opinion in votes['bill_opinions']:
-        cvc = processor_klass(ut, ts, bill_opinion['bill_id'], bill_opinion['vote'])
+    try:
+        for bill_opinion in votes['bill_opinions']:
+            ts = bill_opinion['vote_dttm']
 
-        # NOTE: it occasionally happens where the sausage user's db is not in sync
-        # with our mailing list. The pipeline hasn't been wired up yet
-        # Later, these should get added to an error queue in SQS
-        if not cvc.constituent_id:
-            logging.error("Constituent %s NOT YET CREATED IN DB" % ut)
-            break
+            # FIXME: bills are _very_ inconsistently referenced throughout
+            #        this code. Sorry about that. There's also a significant
+            #        number of "-115" magic congress references that should
+            #        be cleaned up
+            if "-" in bill_opinion['bill_id']:
+                bill_id = bill_opinion['bill_id']
+            else:
+                bill_id = bill_opinion['bill_id'] + "-115"
 
-        if cvc.commit_user_vote():
-            successful_commits += 1
+            print("BILL ID: %s" % bill_id)
+            cvc = processor_klass(ut, ts, bill_id, bill_opinion['vote'])
 
-    # NOTE: need a better way to report errors. I keep my eye on the console for now
-    if successful_commits == len(votes['bill_opinions']):
-        logging.debug("success! %s" % cvc)
-        msg.delete()
-    else:
-        logging.error("Not all messages saved. MSG: %s" % votes)
+            # NOTE: it occasionally happens where the sausage user's db is not in sync
+            #       with our mailing list. The pipeline hasn't been wired up yet
+            #       Later, these should get added to an error queue in SQS
+            if not cvc.constituent_id:
+                logging.error("Constituent %s NOT YET CREATED IN DB" % ut)
+                break
 
+            if cvc.commit_user_vote():
+                successful_commits += 1
+
+        # NOTE: need a better way to report errors. I keep my eye on the console for now
+        if successful_commits == len(votes['bill_opinions']):
+            logging.debug("success! %s")
+            msg.delete()
+        else:
+            logging.error("Not all messages saved. MSG: %s" % votes)
+    # TODO: handle this in a reasonable way
+    except Exception as e:
+        logging.error(e)
 
 def main():
     logging.info("starting queue consumer")
@@ -66,5 +79,6 @@ def main():
         get_messages_from_queue(process_message)
 
 if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    logging.basicConfig(stream=sys.stdout,
+                        level=logging.INFO)
     main()

@@ -1,3 +1,4 @@
+import re
 from datetime import datetime as dt
 from utilities.db import DB
 from bill_updater.tracked_bill import TrackedBill
@@ -19,9 +20,14 @@ class ConstituentVoteConverter:
         :param unix_timestamp: Unix timestamp with microseconds
         """
 
+        # NOTE: unix_timestamp may already have been converted to UTC. If it's
+        #       a timestamp but _not_ UTC, we should error
+        if re.search("(T|\+00:00)", unix_timestamp):
+            return unix_timestamp
         # NOTE: we _should_ have received a unix timestamp with microseconds.
-        # In case we didn't, let's not tear our hair out trying to find this
-        # bug later.
+        #       We may have received a unix_timestamp without microseconds
+
+        ## TODO: YOU ARE HERE. CHECK unix_timestamp to see if it's already converted'2018-04-16T18:48:25'
         if len(str(unix_timestamp)) == 13:
             to_convert = int(unix_timestamp)/1000
         else:
@@ -55,30 +61,33 @@ class ConstituentVoteConverter:
 
     @staticmethod
     def bill_id_converter(bill_id_str, call_times=1, maximum_call_times=2):
-        """converts a bill id like hr123 into the PK representation. Returns None if bill is not inserted"""
-
+        """converts a bill id like hr123-115 into the PK representation. Returns
+            None if bill is not inserted
+        """
 
         bill_id_int = ConstituentVoteConverter._fetch_bill_record(bill_id_str)
 
 
         # NOTE: frequently, it will be the case where the bill has not been
-        # inserted into the database. In that case, we want to insert the bill
-        # into the database and then retry this operation.
+        #       inserted into the database. In that case, we want to insert the bill
+        #       into the database and then retry this operation.
         #
-        # I don't like the mutation of bill_id_int nor that methods in this class
-        # need to know how to insert bills into the database.
+        # I don't like the mutation of bill_id_int nor that methods in this
+        # class need to know how to insert bills into the database.
         #
         # If the insert fails, then this method will raise an exception by
         # design. I want to know when this is happening so I can understand why
 
         # NOTE: I'm the king of infinite loops
+        if not bill_id_int and call_times == maximum_call_times:
+            raise Exception("Bill not able to be added")
+
         if not bill_id_int and call_times <= maximum_call_times:
             ConstituentVoteConverter._add_bill(bill_id_str)
             return ConstituentVoteConverter.bill_id_converter(bill_id_str,
                                                               call_times=2)
 
         bill_id_int = bill_id_int[0]
-
 
         return bill_id_int
 

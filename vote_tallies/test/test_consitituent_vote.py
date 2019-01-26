@@ -73,6 +73,9 @@ class ConstituentVoteConverterTest(unittest.TestCase):
 
         assert time_obj == '2018-04-16T18:48:25'
 
+        time_obj = self.subject.timestamp_converter("2018-12-04T01:27:20+00:00")
+
+        assert time_obj == "2018-12-04T01:27:20+00:00"
 
     def test_bill_id_converter(self):
         with patch('utilities.db.DB.fetch_one') as db:

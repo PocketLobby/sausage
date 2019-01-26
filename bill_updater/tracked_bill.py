@@ -54,7 +54,7 @@ class TrackedBill(DB):
         return self.upsert(upsert_tup)
 
     # notest
-    def upsert(self, upsert_tuple = None):
+    def upsert(self, upsert_tuple=None):
         """Given a tuple suitable for upserting, send it to the database"""
 
         upsert_tuple = upsert_tuple if upsert_tuple else self.upsert_tuple()
@@ -96,7 +96,8 @@ class TrackedBill(DB):
         """, upsert_tuple)
 
     def _vote_styles_and_id(self, data):
-        "Given a list of actions, return a tuple of (house_vote_style, house_vote_id, senate_vote_style, senate_vote_id"
+        """Given a list of actions, return a tuple of (house_vote_style,
+        house_vote_id, senate_vote_style, senate_vote_id"""
         house_vote_style = None
         house_vote_id = None
         senate_vote_style = None

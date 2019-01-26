@@ -6,7 +6,6 @@ from utilities.configurator import Configurator
 class DataBaseEnvironmentConnection:
     """Provides connection details to the database given an environment"""
 
-
     config = Configurator().config
 
     @classmethod
